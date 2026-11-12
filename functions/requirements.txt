@@ -1,0 +1,9 @@
+firebase-functions>=0.4.2
+firebase-admin>=6.5.0
+requests>=2.31
+numpy>=1.26
+scipy>=1.11
+scikit-learn>=1.4
+matplotlib>=3.8
+mne>=1.6,<1.14
+pyriemann>=0.6

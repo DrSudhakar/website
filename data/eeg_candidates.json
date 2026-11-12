@@ -1,0 +1,259 @@
+{
+  "updated": "2026-11-12",
+  "candidates": [
+    {
+      "id": "braindecode/eegpt-pretrained",
+      "downloads": 4428,
+      "likes": 2,
+      "library": "braindecode",
+      "tags": [
+        "braindecode",
+        "pytorch",
+        "safetensors",
+        "EEGPT",
+        "model_hub_mixin",
+        "pytorch_model_hub_mixin",
+        "dataset:on004362",
+        "dataset:nm000172",
+        "dataset:Wang2016",
+        "dataset:SEED",
+        "dataset:M3CV",
+        "license:bsd-3-clause",
+        "region:us"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "PierreGtch/eeg-fm-masking_jepa_r9cm_L2",
+      "downloads": 1225,
+      "likes": 0,
+      "library": null,
+      "tags": [
+        "safetensors",
+        "eeg",
+        "self-supervised-learning",
+        "foundation-model",
+        "pytorch",
+        "jepa",
+        "open-eeg-bench",
+        "feature-extraction",
+        "arxiv:2609.33487",
+        "license:cc-by-4.0",
+        "region:us"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "braindecode/eegdino-medium-pretrained",
+      "downloads": 1163,
+      "likes": 1,
+      "library": "braindecode",
+      "tags": [
+        "braindecode",
+        "pytorch",
+        "safetensors",
+        "eeg",
+        "biosignal",
+        "neuroscience",
+        "eeg-dino",
+        "foundation-model",
+        "self-supervised",
+        "self-distillation",
+        "model_hub_mixin",
+        "pytorch_model_hub_mixin",
+        "feature-extraction",
+        "dataset:TUEG",
+        "license:bsd-3-clause"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "braindecode/eegdino-small-pretrained",
+      "downloads": 892,
+      "likes": 0,
+      "library": "braindecode",
+      "tags": [
+        "braindecode",
+        "pytorch",
+        "safetensors",
+        "eeg",
+        "biosignal",
+        "neuroscience",
+        "eeg-dino",
+        "foundation-model",
+        "self-supervised",
+        "self-distillation",
+        "model_hub_mixin",
+        "pytorch_model_hub_mixin",
+        "feature-extraction",
+        "dataset:TUEG",
+        "license:bsd-3-clause"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "PierreGtch/eeg-fm-masking_mae_r9cm_L2",
+      "downloads": 850,
+      "likes": 0,
+      "library": null,
+      "tags": [
+        "safetensors",
+        "eeg",
+        "self-supervised-learning",
+        "foundation-model",
+        "pytorch",
+        "masked-autoencoder",
+        "open-eeg-bench",
+        "feature-extraction",
+        "arxiv:2609.33487",
+        "license:cc-by-4.0",
+        "region:us"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "braindecode/neurorvq-eeg-pretrained",
+      "downloads": 687,
+      "likes": 0,
+      "library": "braindecode",
+      "tags": [
+        "braindecode",
+        "pytorch",
+        "safetensors",
+        "eeg",
+        "neurorvq",
+        "dataset:BCIC-IV-1",
+        "dataset:WAY-EEG-GAL",
+        "dataset:on004362",
+        "dataset:nm000216",
+        "dataset:Inria-BCI-Challenge",
+        "dataset:Trujillo2020",
+        "dataset:Trujillo2017",
+        "dataset:SPIS-Resting-State",
+        "dataset:TUAR",
+        "dataset:nm000385"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "PierreGtch/eeg-fm-masking_mae_rall_L2",
+      "downloads": 350,
+      "likes": 0,
+      "library": null,
+      "tags": [
+        "safetensors",
+        "eeg",
+        "self-supervised-learning",
+        "foundation-model",
+        "pytorch",
+        "masked-autoencoder",
+        "open-eeg-bench",
+        "feature-extraction",
+        "arxiv:2609.33487",
+        "license:cc-by-4.0",
+        "region:us"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "PierreGtch/eeg-fm-masking_mae_r6cm_L2",
+      "downloads": 296,
+      "likes": 0,
+      "library": null,
+      "tags": [
+        "safetensors",
+        "eeg",
+        "self-supervised-learning",
+        "foundation-model",
+        "pytorch",
+        "masked-autoencoder",
+        "open-eeg-bench",
+        "feature-extraction",
+        "arxiv:2609.33487",
+        "license:cc-by-4.0",
+        "region:us"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "PierreGtch/eeg-fm-masking_mae_rone_L2",
+      "downloads": 283,
+      "likes": 0,
+      "library": null,
+      "tags": [
+        "safetensors",
+        "eeg",
+        "self-supervised-learning",
+        "foundation-model",
+        "pytorch",
+        "masked-autoencoder",
+        "open-eeg-bench",
+        "feature-extraction",
+        "arxiv:2609.33487",
+        "license:cc-by-4.0",
+        "region:us"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "PierreGtch/eeg-fm-masking_mae_r9cm_L1",
+      "downloads": 275,
+      "likes": 0,
+      "library": null,
+      "tags": [
+        "safetensors",
+        "eeg",
+        "self-supervised-learning",
+        "foundation-model",
+        "pytorch",
+        "masked-autoencoder",
+        "open-eeg-bench",
+        "feature-extraction",
+        "arxiv:2609.33487",
+        "license:cc-by-4.0",
+        "region:us"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "PierreGtch/eeg-fm-masking_mae_r12cm_L2",
+      "downloads": 274,
+      "likes": 0,
+      "library": null,
+      "tags": [
+        "safetensors",
+        "eeg",
+        "self-supervised-learning",
+        "foundation-model",
+        "pytorch",
+        "masked-autoencoder",
+        "open-eeg-bench",
+        "feature-extraction",
+        "arxiv:2609.33487",
+        "license:cc-by-4.0",
+        "region:us"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "PierreGtch/eeg-fm-masking_jepa_rall_L1",
+      "downloads": 273,
+      "likes": 0,
+      "library": null,
+      "tags": [
+        "safetensors",
+        "eeg",
+        "self-supervised-learning",
+        "foundation-model",
+        "pytorch",
+        "jepa",
+        "open-eeg-bench",
+        "feature-extraction",
+        "arxiv:2609.33487",
+        "license:cc-by-4.0",
+        "region:us"
+      ],
+      "added": "2026-11-12"
+    }
+  ]
+}

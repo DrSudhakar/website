@@ -1,0 +1,14 @@
+.DS_Store
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+functions/.env
+functions/venv/
+.firebase/
+firebase-debug.log
+*.log
+# never commit private documents
+*.pdf
+!assets/**/*.pdf

@@ -1,0 +1,540 @@
+{
+  "updated": "2026-11-12",
+  "source": "huggingface.co trending text-generation models with a live inference provider",
+  "models": [
+    {
+      "id": "meta-llama/Llama-3.1-8B-Instruct",
+      "provider": "hf",
+      "downloads": 4538631,
+      "likes": 8893,
+      "trending": 48,
+      "params_b": 8.0,
+      "gated": true,
+      "serving": [
+        "novita",
+        "featherless-ai",
+        "deepinfra"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "meta-llama/Meta-Llama-3-8B-Instruct",
+      "provider": "hf",
+      "downloads": 417278,
+      "likes": 5868,
+      "trending": 43,
+      "params_b": 8.0,
+      "gated": true,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "zai-org/GLM-5.3",
+      "provider": "hf",
+      "downloads": 1939284,
+      "likes": 2420,
+      "trending": 33,
+      "params_b": 753.3,
+      "gated": false,
+      "serving": [
+        "novita",
+        "nscale",
+        "together"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "meta-llama/Llama-3.2-3B-Instruct",
+      "provider": "hf",
+      "downloads": 860369,
+      "likes": 2998,
+      "trending": 24,
+      "params_b": 3.2,
+      "gated": true,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "openai/gpt-oss-20b",
+      "provider": "hf",
+      "downloads": 5726141,
+      "likes": 5297,
+      "trending": 21,
+      "params_b": 20.9,
+      "gated": false,
+      "serving": [
+        "groq",
+        "featherless-ai",
+        "ovhcloud"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "OBLITERATUS/Qwen3.8-27B-OBLITERATED",
+      "provider": "hf",
+      "downloads": 536666,
+      "likes": 1660,
+      "trending": 21,
+      "params_b": 27.8,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "tencent/Hy4-preview",
+      "provider": "hf",
+      "downloads": 11362,
+      "likes": 555,
+      "trending": 19,
+      "params_b": 780.0,
+      "gated": false,
+      "serving": [
+        "novita",
+        "deepinfra"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "meta-llama/Llama-3.1-8B",
+      "provider": "hf",
+      "downloads": 467870,
+      "likes": 2785,
+      "trending": 18,
+      "params_b": 8.0,
+      "gated": true,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "openai/gpt-oss-120b",
+      "provider": "hf",
+      "downloads": 2430934,
+      "likes": 5508,
+      "trending": 15,
+      "params_b": 116.8,
+      "gated": false,
+      "serving": [
+        "groq",
+        "novita",
+        "cerebras"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "deepseek-ai/DeepSeek-V4-Flash",
+      "provider": "hf",
+      "downloads": 1179500,
+      "likes": 2392,
+      "trending": 14,
+      "params_b": 290.9,
+      "gated": false,
+      "serving": [
+        "featherless-ai",
+        "deepinfra"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "XiaomiMiMo/MiMo-V2.6-Pro-RL",
+      "provider": "hf",
+      "downloads": 24257,
+      "likes": 817,
+      "trending": 14,
+      "params_b": 1024.2,
+      "gated": false,
+      "serving": [
+        "novita"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "Qwen/Qwen3-0.6B",
+      "provider": "hf",
+      "downloads": 20199784,
+      "likes": 1893,
+      "trending": 13,
+      "params_b": 0.8,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "Qwen/Qwen3.8-2.4T-A95B",
+      "provider": "hf",
+      "downloads": 26274,
+      "likes": 1383,
+      "trending": 13,
+      "params_b": 2446.2,
+      "gated": false,
+      "serving": [
+        "novita",
+        "fireworks-ai",
+        "deepinfra"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "reflection/Beam-1.0-501B-A23B",
+      "provider": "hf",
+      "downloads": 13348,
+      "likes": 319,
+      "trending": 12,
+      "params_b": 501.3,
+      "gated": false,
+      "serving": [
+        "baseten"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "meta-llama/Meta-Llama-3-8B",
+      "provider": "hf",
+      "downloads": 112728,
+      "likes": 6796,
+      "trending": 11,
+      "params_b": 8.0,
+      "gated": true,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "deepseek-ai/DeepSeek-R1",
+      "provider": "hf",
+      "downloads": 1613305,
+      "likes": 14449,
+      "trending": 11,
+      "params_b": 684.5,
+      "gated": false,
+      "serving": [
+        "novita"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "DeepHat/DeepHat-V1-7B",
+      "provider": "hf",
+      "downloads": 4290,
+      "likes": 309,
+      "trending": 11,
+      "params_b": 7.6,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "meta-llama/Llama-3.2-1B-Instruct",
+      "provider": "hf",
+      "downloads": 1320975,
+      "likes": 1975,
+      "trending": 9,
+      "params_b": 1.2,
+      "gated": true,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "Qwen/Qwen3-4B",
+      "provider": "hf",
+      "downloads": 3313855,
+      "likes": 795,
+      "trending": 9,
+      "params_b": 4.0,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "Qwen/Qwen3-8B",
+      "provider": "hf",
+      "downloads": 6419992,
+      "likes": 2183,
+      "trending": 9,
+      "params_b": 8.2,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "meta-llama/Llama-3.3-70B-Instruct",
+      "provider": "hf",
+      "downloads": 350504,
+      "likes": 3203,
+      "trending": 8,
+      "params_b": 70.6,
+      "gated": true,
+      "serving": [
+        "novita",
+        "featherless-ai",
+        "scaleway"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "provider": "hf",
+      "downloads": 963057,
+      "likes": 1910,
+      "trending": 7,
+      "params_b": 1.1,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "meta-llama/Llama-3.2-3B",
+      "provider": "hf",
+      "downloads": 274783,
+      "likes": 1089,
+      "trending": 7,
+      "params_b": 3.2,
+      "gated": true,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "google/gemma-3-1b-it",
+      "provider": "hf",
+      "downloads": 210917,
+      "likes": 1313,
+      "trending": 7,
+      "params_b": 1.0,
+      "gated": true,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "CohereLabs/tiny-aya-global",
+      "provider": "hf",
+      "downloads": 23891,
+      "likes": 203,
+      "trending": 7,
+      "params_b": 3.3,
+      "gated": true,
+      "serving": [
+        "cohere"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "medismera/Qwen3.8-27B-OBLITERATED-Mythos-Class-Agentic",
+      "provider": "hf",
+      "downloads": 1354,
+      "likes": 128,
+      "trending": 7,
+      "params_b": 27.8,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "XiaomiMiMo/MiMo-V2.6-Flash-RL",
+      "provider": "hf",
+      "downloads": 69744,
+      "likes": 593,
+      "trending": 7,
+      "params_b": 310.8,
+      "gated": false,
+      "serving": [
+        "novita"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "Qwen/Qwen2.5-Coder-7B-Instruct",
+      "provider": "hf",
+      "downloads": 1422323,
+      "likes": 872,
+      "trending": 6,
+      "params_b": 7.6,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "meta-llama/Llama-3.2-1B",
+      "provider": "hf",
+      "downloads": 555931,
+      "likes": 2769,
+      "trending": 6,
+      "params_b": 1.2,
+      "gated": true,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "Qwen/Qwen3-0.6B-Base",
+      "provider": "hf",
+      "downloads": 601570,
+      "likes": 225,
+      "trending": 6,
+      "params_b": 0.6,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "provider": "hf",
+      "downloads": 1703031,
+      "likes": 1329,
+      "trending": 6,
+      "params_b": 30.5,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "IFM/K2-Horizon-7B",
+      "provider": "hf",
+      "downloads": 54666,
+      "likes": 287,
+      "trending": 6,
+      "params_b": 9.0,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "inclusionAI/Ling-3.1-flash",
+      "provider": "hf",
+      "downloads": 8008,
+      "likes": 168,
+      "trending": 6,
+      "params_b": 572.1,
+      "gated": false,
+      "serving": [
+        "novita"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "google/gemma-2-2b",
+      "provider": "hf",
+      "downloads": 75543,
+      "likes": 768,
+      "trending": 5,
+      "params_b": 2.6,
+      "gated": true,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "meta-llama/Llama-Guard-3-8B",
+      "provider": "hf",
+      "downloads": 22267,
+      "likes": 355,
+      "trending": 5,
+      "params_b": 8.0,
+      "gated": true,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "NousResearch/Hermes-3-Llama-3.1-8B",
+      "provider": "hf",
+      "downloads": 337826,
+      "likes": 549,
+      "trending": 5,
+      "params_b": 8.0,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "Qwen/Qwen2.5-0.5B-Instruct",
+      "provider": "hf",
+      "downloads": 4448312,
+      "likes": 742,
+      "trending": 5,
+      "params_b": 0.5,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "Qwen/Qwen2.5-1.5B-Instruct",
+      "provider": "hf",
+      "downloads": 5122359,
+      "likes": 940,
+      "trending": 5,
+      "params_b": 1.5,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+      "provider": "hf",
+      "downloads": 447523,
+      "likes": 1664,
+      "trending": 5,
+      "params_b": 1.8,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    },
+    {
+      "id": "Qwen/Qwen3-4B-Instruct-2507",
+      "provider": "hf",
+      "downloads": 2576508,
+      "likes": 1052,
+      "trending": 5,
+      "params_b": 4.0,
+      "gated": false,
+      "serving": [
+        "featherless-ai"
+      ],
+      "added": "2026-11-12"
+    }
+  ]
+}

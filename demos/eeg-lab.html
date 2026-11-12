@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EEG Microstate &amp; Affect Lab · Sudhakar Mishra</title>
+  <meta name="description" content="Upload EEG from several tasks: automatic preprocessing, microstate comparison across tasks and affect decoding with selectable open-source models.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%238a2a2b'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='Georgia'%3ESM%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/config.js"></script>
+  <script defer src="../assets/js/site.js"></script>
+  <script defer src="../assets/js/charts.js"></script>
+</head>
+<body>
+<main id="main" class="wrap">
+  <p><a href="../glance.html">← Work at a glance</a></p>
+  <h1 class="page-title">EEG microstate &amp; affect lab</h1>
+  <p class="lede">Upload EEG recordings from one or more tasks. The service preprocesses them automatically, (1) builds <b>microstates</b> and compares them between tasks, and (2) runs <b>affective computing</b> analyses with open-source models you choose.</p>
+  <div id="svc" class="callout"></div>
+
+  <div class="panel">
+    <h3>1 · Data</h3>
+    <p class="note">One file per task/condition (e.g. “calm film”, “fear film”). Accepted: <code>.edf .bdf .set .fif .csv .npy</code>, up to 30 MB in total. For CSV/NPY give the sampling rate. Channel names should follow the 10-20 system (Fz, Cz, O1 …) for scalp maps. Data are processed in memory and not stored.</p>
+    <div id="tasks"></div>
+    <div class="form-row">
+      <button class="btn" id="addTask">＋ Add task</button>
+      <div><label for="sfreq">Sampling rate (Hz) — only for CSV/NPY</label><input type="number" id="sfreq" min="1" step="1" placeholder="e.g. 250" style="width:140px"></div>
+      <button class="btn" id="demo">✨ No data? Run on built-in demo data</button>
+    </div>
+    <div class="callout warn"><b>Privacy.</b> EEG can be personal data. Only upload recordings you have the right and consent to share (ideally anonymised).</div>
+  </div>
+
+  <div class="panel">
+    <h3>2 · Preprocessing &amp; microstates</h3>
+    <div class="form-row">
+      <div><label for="notch">Line-noise notch</label><select id="notch"><option value="50">50 Hz (India/Europe)</option><option value="60">60 Hz (Americas)</option><option value="0">None</option></select></div>
+      <div><label for="lf">Band-pass low (Hz)</label><input type="number" id="lf" value="1" min="0.1" step="0.1" style="width:90px"></div>
+      <div><label for="hf">high (Hz)</label><input type="number" id="hf" value="40" min="10" step="1" style="width:90px"></div>
+      <div><label for="k">Number of microstates</label><select id="k"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option value="auto">auto (cross-validation)</option></select></div>
+      <div style="flex-direction:row;gap:14px;align-items:center"><label><input type="checkbox" id="ica"> ICA eye-artefact removal</label><label><input type="checkbox" id="ptm" checked> Task-specific maps</label></div>
+    </div>
+    <p class="note">Automatic steps: crop (≤ 5 min/task) → bad-channel detection &amp; interpolation → notch → band-pass → resample to 250 Hz → average reference → rejection of 2-s epochs with peak-to-peak &gt; 150 µV. Microstates: group templates by polarity-invariant modified K-means on GFP peaks pooled across tasks, back-fitting to every task, then coverage / duration / occurrence / transitions per task and statistics between tasks.</p>
+  </div>
+
+  <div class="panel">
+    <h3>3 · Affective computing — choose open-source models</h3>
+    <label style="display:block;margin-bottom:8px"><input type="checkbox" id="doAffect" checked> Run affect analysis (needs ≥ 2 tasks for decoding)</label>
+    <p class="note" id="mstamp">Loading model registry…</p>
+    <div id="models"></div>
+  </div>
+
+  <p><button class="btn primary" id="run">▶ Run analysis</button> <span class="note" id="runmsg" aria-live="polite"></span></p>
+  <div id="out"></div>
+</main>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const $ = (id) => document.getElementById(id), esc = (s) => Site.esc(s), cfg = window.SITE_CONFIG || {};
+  const svc = $("svc");
+  if (!cfg.EEG_URL) { svc.className = "callout warn"; svc.innerHTML = "⚙️ <b>Backend not connected yet.</b> This page needs the Firebase function deployed — see <code>GUIDE.md</code> → Part 5, then paste the URL into <code>assets/js/config.js</code>."; $("run").disabled = true; $("demo").disabled = true; }
+  else { svc.textContent = "Checking backend…"; fetch(cfg.STATUS_URL).then((r) => r.json()).then(() => { svc.className = "callout"; svc.textContent = "✅ Backend online."; }).catch(() => { svc.className = "callout bad"; svc.textContent = "Backend unreachable — check the URLs in config.js and ALLOWED_ORIGINS in functions/.env."; }); }
+
+  // ---------- tasks
+  let nTask = 0;
+  function addTask(name) {
+    if ($("tasks").children.length >= 6) return;
+    nTask++; const d = document.createElement("div"); d.className = "form-row";
+    d.innerHTML = `<div><label>Task name</label><input type="text" class="tname" value="${esc(name || "Task " + nTask)}" maxlength="40"></div>
+      <div><label>EEG file</label><input type="file" class="tfile" accept=".edf,.bdf,.set,.fif,.csv,.npy,.txt"></div><button class="btn small rm" type="button">Remove</button>`;
+    d.querySelector(".rm").onclick = () => d.remove(); $("tasks").append(d);
+  }
+  $("addTask").onclick = () => addTask(); addTask("Rest"); addTask("Task");
+
+  // ---------- model registry (auto-tested weekly by GitHub Actions)
+  const reg = await Site.loadJSON("data/eeg_models.json", { models: [], tested_at: null });
+  const badge = { ok: "ok", failed: "bad", skipped: "warn", unavailable: "warn" };
+  $("mstamp").innerHTML = reg.tested_at ? `Every model below was <b>test-run automatically</b> on ${Site.fmtDate(reg.tested_at.slice(0, 10))} (it must execute and beat chance on a synthetic EEG task before it is offered). New open-source models are discovered from Hugging Face weekly and tested the same way.` : "No test report yet — run the “Update EEG models” GitHub Action once.";
+  const web = reg.models.filter((m) => m.kind === "builtin" && m.runtime === "function"), local = reg.models.filter((m) => m.kind === "builtin" && m.runtime === "local"), cand = reg.models.filter((m) => m.kind === "candidate");
+  const dflt = new Set(["logreg_de", "riemann_ts_lr"]);
+  const pick = (m) => `<label class="${m.status === "ok" ? "" : "disabled"}" title="${esc(m.description || "")}"><input type="checkbox" name="model" value="${esc(m.id)}" ${m.status === "ok" ? "" : "disabled"} ${dflt.has(m.id) && m.status === "ok" ? "checked" : ""}> ${esc(m.name)} <span class="chip ${badge[m.status] || ""}">${esc(m.status)}</span></label>`;
+  $("models").innerHTML = `<h4 style="margin:.6em 0 .3em">Runs on the web service</h4><div class="model-pick">${web.map(pick).join("") || '<span class="note">none</span>'}</div>
+    <h4 style="margin:1em 0 .3em">Deep models — run locally with the command line</h4><div class="note">${local.map((m) => `${esc(m.name)} <span class="chip ${badge[m.status] || ""}">${esc(m.status)}</span>`).join(" · ") || "none"}</div>
+    <details style="margin-top:12px"><summary><b>Pretrained models discovered automatically on Hugging Face (${cand.length})</b></summary>
+      <p class="note">These are EEG foundation-model encoders. “ok” means the checkpoint downloads, loads and runs a forward pass; they still need fine-tuning on labelled data, so run them locally (<code>python -m eeg_tools.cli</code>).</p>
+      <div class="table-wrap"><table><thead><tr><th>Model</th><th>Status</th><th>Details</th></tr></thead><tbody>${cand.map((m) => `<tr><td><a href="https://huggingface.co/${esc(m.id)}" target="_blank" rel="noopener">${esc(m.id)}</a></td><td><span class="chip ${badge[m.status] || ""}">${esc(m.status)}</span></td><td class="note">${esc(m.detail || "")}</td></tr>`).join("")}</tbody></table></div></details>`;
+
+  // ---------- run
+  async function run(demo) {
+    const fd = new FormData(), names = [];
+    if (demo) fd.append("demo", "1");
+    else {
+      const rows = [...document.querySelectorAll("#tasks .form-row")].filter((r) => r.querySelector(".tfile").files[0]);
+      if (!rows.length) return alert("Choose at least one EEG file, or use the demo data.");
+      rows.forEach((r) => { names.push(r.querySelector(".tname").value.trim() || "task"); fd.append("files", r.querySelector(".tfile").files[0]); });
+      fd.append("names", JSON.stringify(names)); if ($("sfreq").value) fd.append("sfreq", $("sfreq").value);
+    }
+    const models = [...document.querySelectorAll('input[name="model"]:checked')].map((i) => i.value);
+    fd.append("options", JSON.stringify({ k: $("k").value === "auto" ? "auto" : +$("k").value, notch: +$("notch").value || null, l_freq: +$("lf").value, h_freq: +$("hf").value, ica: $("ica").checked, per_task_maps: $("ptm").checked, affect: $("doAffect").checked, models }));
+    $("run").disabled = $("demo").disabled = true; $("out").innerHTML = ""; $("runmsg").innerHTML = '<span class="spinner"></span>Analysing… (up to ~2 minutes; the first request after a quiet period is slower)';
+    try {
+      const r = await fetch(cfg.EEG_URL, { method: "POST", body: fd }); const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status);
+      render(j, demo); $("runmsg").textContent = `Done in ${j.seconds} s.`;
+    } catch (e) { $("runmsg").textContent = "❌ " + e.message; }
+    $("run").disabled = $("demo").disabled = !cfg.EEG_URL ? true : false;
+  }
+  $("run").onclick = () => run(false); $("demo").onclick = () => run(true);
+
+  // ---------- rendering
+  const img = (b, h) => (b ? `<img src="data:image/png;base64,${b}" alt="" style="height:${h || 130}px;border-radius:8px;background:#fff">` : "");
+  const pf = (p) => (p < 0.001 ? "<0.001" : p.toFixed(3));
+  let last;
+  function render(res, demo) {
+    last = res; let h = "";
+    if (demo) h += `<div class="callout warn"><b>Demo data.</b> These are <em>synthetic</em> recordings generated with known microstates (task A dominated by states A/B, task B by C/D) plus extra beta and right-frontal alpha in task B, so you can see what the outputs look like.</div>`;
+    // preprocessing
+    h += `<div class="panel"><h3>Preprocessing</h3><div class="table-wrap"><table><thead><tr><th>Task</th><th>Channels</th><th>Length</th><th>Clean epochs</th><th>Steps</th></tr></thead><tbody>${Object.entries(res.preprocessing).map(([n, p]) =>
+      `<tr><td><b>${esc(n)}</b></td><td>${p.n_channels}${p.bad_channels && p.bad_channels.length ? `<div class="note">bad: ${esc(p.bad_channels.join(", "))}</div>` : ""}</td><td>${p.seconds} s @ ${p.sfreq} Hz</td><td>${p.epochs_kept}/${p.epochs_total}</td><td class="note">${p.steps.map(esc).join(" → ")}</td></tr>`).join("")}</tbody></table></div></div>`;
+    const m = res.microstates;
+    if (m && m.error) h += `<div class="callout bad"><b>Microstates:</b> ${esc(m.error)}</div>`;
+    if (m && !m.error) {
+      h += `<div class="panel"><h3>Microstate templates (group level, K = ${m.k})</h3><div class="imgs">${m.images.group_maps.map((b, i) => `<figure>${img(b, 150)}</figure>`).join("")}</div>
+        <p class="note">Maps explain ${m.gev_group}% of the global field power in the pooled GFP peaks. Polarity is arbitrary in microstate analysis. ${m.k_search ? "K was chosen automatically by the cross-validation criterion." : ""}</p>
+        ${m.k_search ? `<details><summary>K search</summary><div class="table-wrap"><table style="width:auto"><thead><tr><th>K</th><th>GEV</th><th>CV criterion (lower = better)</th></tr></thead><tbody>${m.k_search.map((r) => `<tr><td>${r.k}</td><td>${(r.gev * 100).toFixed(1)}%</td><td>${r.cv}</td></tr>`).join("")}</tbody></table></div></details>` : ""}</div>`;
+      h += `<div class="panel"><h3>Microstate statistics per task</h3><div class="grid cols-2"><div><canvas id="cCov" style="width:100%"></canvas></div><div><canvas id="cDur" style="width:100%"></canvas></div><div><canvas id="cOcc" style="width:100%"></canvas></div><div><div id="cLeg"></div></div></div>
+        <p class="note">Bars = mean ± s.e.m. across 2-second clean epochs. Back-fitting used a ${m.min_segment_ms} ms minimum segment length.</p></div>`;
+      const sig = m.comparisons, nSig = sig.filter((c) => c.q_fdr < 0.05).length;
+      h += `<div class="panel"><h3>Comparison between tasks</h3>${Object.keys(m.summary).length < 2 ? '<p class="note">Upload at least two tasks to compare microstates.</p>' : `<p>${nSig} of ${sig.length} tests significant after false-discovery-rate correction (q &lt; 0.05).</p>
+        <div class="table-wrap"><table><thead><tr><th>Metric</th><th>State</th><th>Tasks</th><th>Test</th><th>p</th><th>q (FDR)</th><th>Effect</th></tr></thead><tbody>${sig.slice(0, 40).map((c) => `<tr style="${c.q_fdr < 0.05 ? "font-weight:600" : "color:var(--muted)"}"><td>${c.metric}</td><td>${c.state}</td><td>${c.tasks.map(esc).join(" vs ")}</td><td>${c.test}</td><td>${pf(c.p)}</td><td>${pf(c.q_fdr)}</td><td>${c.effect_name} ${c.effect}</td></tr>`).join("")}</tbody></table></div>
+        <div class="callout warn"><b>Read with care.</b> Tests treat 2-s epochs as independent samples, but epochs from one recording are autocorrelated, so p-values are optimistic. They are for exploration; for inference compute these metrics per participant (use the command-line tool) and test across participants.</div>`}</div>`;
+      h += `<div class="panel"><h3>Transition probabilities</h3><p class="note">Probability that the next microstate is column X given the current one is row Y (self-transitions excluded).</p><div class="grid cols-2">${Object.entries(m.summary).map(([n, s]) => `<div><b>${esc(n)}</b>${Charts.heatTable(m.states, s.transition_prob)}</div>`).join("")}</div></div>`;
+      if (Object.keys(m.map_stability).length) h += `<div class="panel"><h3>Task-specific maps &amp; stability</h3><p class="note">Microstates were also estimated separately inside each task and matched to the group maps. High spatial correlation (≥ 0.9) means the same topographies describe the task.</p>${Object.entries(m.map_stability).map(([n, s]) =>
+        `<div style="margin-bottom:12px"><b>${esc(n)}</b> <span class="note">· GEV ${s.gev}% · spatial correlation to group: ${Object.entries(s.spatial_corr_to_group).map(([k, v]) => `${k} ${v}`).join(", ")}</span><div class="imgs">${(m.images.task_maps[n] || []).map((b) => `<figure>${img(b, 110)}</figure>`).join("")}</div></div>`).join("")}</div>`;
+      h += `<div class="panel"><h3>Example segmentation (first 2 s)</h3>${Object.entries(m.images.segmentation).map(([n, b]) => `<div><b>${esc(n)}</b><br>${img(b, 130)}</div>`).join("")}</div>`;
+    }
+    const a = res.affect;
+    if (a) {
+      const tasks = Object.keys(a.indices), keys = [...new Set(tasks.flatMap((t) => Object.keys(a.indices[t])))];
+      h += `<div class="panel"><h3>Affect indices</h3><div class="table-wrap"><table><thead><tr><th>Index</th>${tasks.map((t) => `<th>${esc(t)}</th>`).join("")}</tr></thead><tbody>${keys.map((k) => `<tr><td><code>${esc(k)}</code></td>${tasks.map((t) => { const v = a.indices[t][k]; return `<td>${v ? v.mean + ' <span class="note">± ' + v.sd + "</span>" : "–"}</td>`; }).join("")}</tr>`).join("")}</tbody></table></div>
+        <p class="note"><b>FAA</b> (frontal alpha asymmetry) = ln α<sub>right</sub> − ln α<sub>left</sub>: higher → relatively more left-frontal activity, traditionally linked to approach motivation / positive affect. <b>Arousal</b> = ln(β/α): higher ≈ more cortical activation. Both are simple, debated markers — effects are small and noisy.</p></div>`;
+      const d = a.decoding;
+      h += `<div class="panel"><h3>Decoding the task / affective condition</h3>${d.skipped ? `<p class="note">${esc(d.skipped)}</p>` : `<p class="note">${d.n_epochs} epochs · classes: ${d.classes.map(esc).join(", ")} · chance ≈ ${(d.chance_level * 100).toFixed(0)}% · ${esc(d.cv)}</p>
+        <div class="table-wrap"><table><thead><tr><th>Model</th><th>Balanced accuracy</th><th>Accuracy</th><th>Macro-F1</th></tr></thead><tbody>${d.models.map((r) => r.error ? `<tr><td>${esc(r.name || r.id)}</td><td colspan="3" class="note" style="color:var(--bad)">${esc(r.error)}</td></tr>` :
+          `<tr><td><b>${esc(r.name)}</b><div class="note">${esc(r.family)}</div></td><td><div style="display:flex;align-items:center;gap:8px"><div style="background:var(--surface-2);border-radius:6px;width:110px;height:12px;overflow:hidden"><div style="width:${r.balanced_accuracy * 100}%;height:100%;background:var(--accent)"></div></div><b>${(r.balanced_accuracy * 100).toFixed(1)}%</b></div></td><td>${(r.accuracy * 100).toFixed(1)}%</td><td>${r.macro_f1}</td></tr>`).join("")}</tbody></table></div>
+        <p class="note">${esc(d.feature_note)}</p>${d.models[0] && d.models[0].confusion ? `<h4>Confusion matrix — best model (${esc(d.models[0].name)})</h4>${Charts.heatTable(d.classes.map((c) => c.slice(0, 14)), d.models[0].confusion.map((r) => { const s = r.reduce((x, y) => x + y, 0) || 1; return r.map((v) => v / s); }), (x) => (x * 100).toFixed(0) + "%")}` : ""}
+        <div class="callout warn"><b>Interpretation.</b> Cross-validation holds out contiguous blocks, but a single recording per task still cannot show that a model generalises to <em>new people</em>. Use it to compare models on your data, not as proof of emotion recognition.</div>`}</div>`;
+    }
+    h += `<p><button class="btn" id="dl">⬇ Download all results (JSON)</button></p>`;
+    $("out").innerHTML = h;
+    $("dl").onclick = () => { const x = JSON.parse(JSON.stringify(last)); const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(x, null, 1)], { type: "application/json" })); a.download = "eeg_results.json"; a.click(); };
+    if (m && !m.error) {
+      const names = Object.keys(m.summary), series = (key, scale) => names.map((n) => ({ name: n, values: m.summary[n][key].mean, errors: m.summary[n][key].sem }));
+      Charts.groupedBars($("cCov"), m.states, series("coverage"), { title: "Coverage (% of time)" });
+      Charts.groupedBars($("cDur"), m.states, series("duration"), { title: "Mean duration (ms)" });
+      Charts.groupedBars($("cOcc"), m.states, series("occurrence"), { title: "Occurrence (per second)" });
+      $("cLeg").innerHTML = Charts.legend(names.map((n, i) => ({ name: n, color: Charts.PALETTE[i % Charts.PALETTE.length] })));
+    }
+    $("out").scrollIntoView({ behavior: "smooth" });
+  }
+});
+</script>
+</body>
+</html>

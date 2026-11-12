@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cardiac Activity from Webcam · Sudhakar Mishra</title>
+  <meta name="description" content="Estimate heart rate and HRV from a face video using remote photoplethysmography, entirely in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%238a2a2b'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='Georgia'%3ESM%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/site.js"></script>
+  <script defer src="../assets/js/rppg.js"></script>
+  <script defer src="../assets/js/webcam.js"></script>
+</head>
+<body>
+<main id="main" class="wrap">
+  <p><a href="../glance.html">← Work at a glance</a></p>
+  <h1 class="page-title">Cardiac activity from your webcam</h1>
+  <p class="lede">Each heartbeat changes how much light your skin absorbs. A webcam can pick up that tiny colour pulse (remote photoplethysmography, <em>rPPG</em>) and turn it into heart rate and heart-rate variability.</p>
+
+  <div class="callout">🔒 <b>Private by design.</b> Video is processed on your device only; nothing is recorded or uploaded. Your browser will ask for camera permission.</div>
+  <div class="callout warn">⚕️ This is a research / teaching demo, <b>not a medical device</b>. HRV from a 30 fps webcam is only indicative.</div>
+
+  <div class="panel">
+    <div class="form-row">
+      <div><label for="dur">Recording length</label><select id="dur"><option value="20">20 s</option><option value="30" selected>30 s</option><option value="45">45 s</option><option value="60">60 s</option></select></div>
+      <div style="flex-direction:row;gap:8px"><button class="btn primary" id="start">📷 Start camera &amp; measure</button><button class="btn" id="stop" disabled>Stop</button></div>
+    </div>
+    <div style="position:relative;max-width:640px">
+      <video id="video" playsinline muted style="width:100%;border-radius:10px;background:#000;transform:scaleX(-1)"></video>
+      <canvas id="overlay" style="position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);background:transparent"></canvas>
+    </div>
+    <p class="note" id="status" aria-live="polite">Tips: face the camera in steady, even light (daylight is best), keep still and don't talk. Remove strong backlight.</p>
+    <progress id="prog" value="0" max="100" style="width:100%;max-width:640px;display:none"></progress>
+  </div>
+
+  <div class="panel" id="results" style="display:none">
+    <h3>Result</h3>
+    <div class="metrics">
+      <div class="card metric"><b id="rBpm">–</b><span>Heart rate (bpm)</span></div>
+      <div class="card metric"><b id="rRmssd">–</b><span>RMSSD (ms) · indicative</span></div>
+      <div class="card metric"><b id="rSdnn">–</b><span>SDNN (ms) · indicative</span></div>
+      <div class="card metric"><b id="rQ">–</b><span>Signal quality</span></div>
+    </div>
+    <h3 style="margin-top:18px">Pulse waveform (detected beats marked)</h3><canvas id="wave" width="900" height="200"></canvas>
+    <h3 style="margin-top:18px">Frequency spectrum</h3><canvas id="spec" width="900" height="160"></canvas>
+    <p class="note" id="rNote"></p>
+    <button class="btn" id="csv">⬇ Download pulse signal (CSV)</button>
+  </div>
+
+  <div class="panel"><h3>How it works</h3>
+    <ol>
+      <li><b>Find the face</b> with MediaPipe Face Landmarker and sample three skin regions: forehead and both cheeks.</li>
+      <li><b>Average the red, green, blue</b> values in those regions for every frame.</li>
+      <li><b>Separate pulse from motion/lighting</b> using the POS algorithm (Wang et al., 2017), then band-pass 0.7–3.5 Hz (42–210 bpm).</li>
+      <li><b>Heart rate</b> = strongest spectral peak; <b>HRV</b> from the intervals between detected beats (RMSSD, SDNN).</li>
+    </ol>
+    <p class="note">My M.Tech. work used a different video cue — head ballistocardiography — see <a href="../publications.html">“Heart rate measurement using video in different user states”</a>.</p>
+  </div>
+</main>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const $ = (id) => document.getElementById(id), video = $("video"), ov = $("overlay"), octx = ov.getContext("2d");
+  const grab = document.createElement("canvas"), gctx = grab.getContext("2d", { willReadFrequently: true });
+  let lm = null, stopFrames = null, samples = [], t0 = 0, running = false, last = null;
+
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const status = (m) => ($("status").textContent = m);
+
+  function rois(pts, W, H) { // forehead + both cheeks as boxes, in px
+    const fw = Math.hypot((pts[454].x - pts[234].x) * W, (pts[454].y - pts[234].y) * H);
+    const box = (p, w, h) => ({ x: Math.round(p.x * W - w / 2), y: Math.round(p.y * H - h / 2), w: Math.round(w), h: Math.round(h) });
+    return [box(pts[151], fw * 0.30, fw * 0.11), box(pts[50], fw * 0.13, fw * 0.13), box(pts[280], fw * 0.13, fw * 0.13)];
+  }
+  function sampleRGB(boxes, W, H) {
+    let r = 0, g = 0, b = 0, n = 0;
+    for (const bx of boxes) {
+      const x = Math.max(0, bx.x), y = Math.max(0, bx.y), w = Math.min(W - x, bx.w), h = Math.min(H - y, bx.h);
+      if (w < 2 || h < 2) continue;
+      const d = gctx.getImageData(x, y, w, h).data;
+      for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; n++; }
+    }
+    return n ? [r / n, g / n, b / n] : null;
+  }
+
+  async function begin() {
+    $("start").disabled = true; status("Loading face model (first time ~10 MB)…");
+    try {
+      if (!lm) lm = await Webcam.landmarker({ blendshapes: false });
+      await Webcam.start(video);
+    } catch (e) { status("Could not start: " + e.message); $("start").disabled = false; return; }
+    ov.width = grab.width = video.videoWidth; ov.height = grab.height = video.videoHeight;
+    samples = []; running = true; $("stop").disabled = false; $("results").style.display = "none"; $("prog").style.display = "block";
+    const dur = +$("dur").value; t0 = 0; let lostSince = null;
+    stopFrames = Webcam.onFrame(video, (now) => {
+      const W = grab.width, H = grab.height;
+      gctx.drawImage(video, 0, 0, W, H);
+      const res = lm.detectForVideo(video, now);
+      octx.clearRect(0, 0, W, H);
+      if (!res.faceLandmarks || !res.faceLandmarks.length) {
+        status("No face detected — move into frame."); lostSince = lostSince ?? now; if (now - lostSince > 3000) { t0 = 0; samples = []; } return;
+      }
+      lostSince = null;
+      const boxes = rois(res.faceLandmarks[0], W, H), rgb = sampleRGB(boxes, W, H);
+      octx.strokeStyle = "#48bb78"; octx.lineWidth = 2; boxes.forEach((b) => octx.strokeRect(b.x, b.y, b.w, b.h));
+      if (!rgb) return;
+      if (!t0) t0 = now;
+      const t = (now - t0) / 1000; samples.push({ t, r: rgb[0], g: rgb[1], b: rgb[2] });
+      $("prog").value = Math.min(100, (t / dur) * 100);
+      status(`Measuring… ${Math.max(0, Math.ceil(dur - t))} s left. Stay still.`);
+      if (t >= dur) finish();
+    });
+  }
+  function finish() {
+    if (!running) return; running = false;
+    stopFrames && stopFrames(); Webcam.stop(video); octx.clearRect(0, 0, ov.width, ov.height);
+    $("start").disabled = false; $("stop").disabled = true; $("prog").style.display = "none";
+    if (samples.length < 100) { status("Not enough usable frames. Try again with your face fully in view."); return; }
+    const fs = Math.min(60, Math.max(15, Math.round((samples.length - 1) / (samples[samples.length - 1].t - samples[0].t))));
+    last = RPPG.analyze(samples, { fs });
+    if (!last.ok) { status(last.reason); return; }
+    show(last); status("Done. Frame rate ≈ " + fs + " fps.");
+  }
+  function show(r) {
+    $("results").style.display = "block";
+    $("rBpm").textContent = r.bpm.toFixed(0);
+    $("rRmssd").textContent = r.hrv ? r.hrv.rmssd.toFixed(0) : "–"; $("rSdnn").textContent = r.hrv ? r.hrv.sdnn.toFixed(0) : "–";
+    $("rQ").textContent = r.quality + " (" + r.snr.toFixed(1) + " dB)";
+    $("rNote").textContent = r.quality === "poor" ? "Signal quality is poor — the heart rate may be wrong. Try steadier head position and brighter, even light." : r.hrv ? `Based on ${r.hrv.n} clean beats. HRV from webcam video is noisy (frame-rate limits timing to ~33 ms); treat as indicative only.` : "Too few clean beats for HRV.";
+    drawWave(r); drawSpec(r.spectrum, r.bpm / 60);
+  }
+  function drawWave(r) {
+    const c = $("wave"), g = c.getContext("2d"), W = c.width, H = c.height; g.clearRect(0, 0, W, H);
+    const x = r.signal, mx = Math.max(...x.map(Math.abs)) || 1;
+    g.strokeStyle = css("--accent-2"); g.lineWidth = 1.5; g.beginPath();
+    x.forEach((v, i) => { const px = (i / (x.length - 1)) * W, py = H / 2 - (v / mx) * (H / 2 - 12); i ? g.lineTo(px, py) : g.moveTo(px, py); }); g.stroke();
+    g.fillStyle = css("--accent"); r.peaks.forEach((t) => { const px = (t * r.fs / (x.length - 1)) * W, i = Math.round(t * r.fs), py = H / 2 - ((x[i] || 0) / mx) * (H / 2 - 12); g.beginPath(); g.arc(px, py, 4, 0, 7); g.fill(); });
+  }
+  function drawSpec(sp, f0) {
+    const c = $("spec"), g = c.getContext("2d"), W = c.width, H = c.height; g.clearRect(0, 0, W, H);
+    const mx = Math.max(...sp.power); g.fillStyle = css("--accent-2");
+    sp.freqs.forEach((f, i) => { const x = ((f - 0.7) / 2.8) * W, h = (sp.power[i] / mx) * (H - 24); g.fillRect(x, H - 18 - h, W / sp.freqs.length + 1, h); });
+    g.fillStyle = css("--accent"); g.fillRect(((f0 - 0.7) / 2.8) * W, 0, 2, H - 18);
+    g.fillStyle = css("--muted"); g.font = "12px system-ui"; [60, 90, 120, 150, 180].forEach((b) => g.fillText(b + " bpm", ((b / 60 - 0.7) / 2.8) * W - 18, H - 3));
+  }
+  $("start").addEventListener("click", begin);
+  $("stop").addEventListener("click", finish);
+  $("csv").addEventListener("click", () => {
+    if (!last) return; const rows = ["time_s,pulse"]; last.signal.forEach((v, i) => rows.push((i / last.fs).toFixed(3) + "," + v.toFixed(5)));
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" })); a.download = "rppg_pulse.csv"; a.click();
+  });
+});
+</script>
+</body>
+</html>

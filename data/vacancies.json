@@ -1,0 +1,60 @@
+{
+  "intro": "The HCIA Lab at SVNIT Surat welcomes motivated students. Send a short CV, a one-paragraph statement of interest naming the topic below, and any code/GitHub links.",
+  "openings": [
+    {
+      "id": "phd",
+      "type": "PhD",
+      "title": "PhD positions",
+      "status": "open",
+      "deadline": "",
+      "when": "Rolling",
+      "topics": [
+        "EEG microstates and spatiotemporal brain dynamics of emotion",
+        "Reinforcement learning for empathetic and reasoning LLMs",
+        "Multimodal affective computing (EEG, cardiac, facial)",
+        "Computational models of emotion and contemplative practice"
+      ],
+      "requirements": [
+        "M.Tech./M.Sc. (or B.Tech. with strong record) in CS, AI, EE, Cognitive Science or a related field",
+        "Strong Python; experience with PyTorch and/or MNE/EEGLAB is a plus",
+        "Apply through the SVNIT PhD admission process and email the PI beforehand"
+      ]
+    },
+    {
+      "id": "summer",
+      "type": "Summer research intern",
+      "title": "Summer research internship",
+      "status": "open",
+      "deadline": "",
+      "when": "May–July",
+      "topics": [
+        "Building web demos for affective sensing (webcam rPPG, expression analysis)",
+        "EEG preprocessing and microstate pipelines",
+        "Benchmarking LLM empathy"
+      ],
+      "requirements": [
+        "Undergraduate / master's students",
+        "Comfortable with Python or JavaScript",
+        "Able to commit at least 8 weeks"
+      ]
+    },
+    {
+      "id": "winter",
+      "type": "Winter research intern",
+      "title": "Winter research internship",
+      "status": "open",
+      "deadline": "",
+      "when": "December–January",
+      "topics": [
+        "RL environments and agents (gridworld to LLM post-training)",
+        "Open-source EEG model benchmarking",
+        "Dataset curation for affective computing"
+      ],
+      "requirements": [
+        "Undergraduate / master's students",
+        "Basic ML background",
+        "Able to commit at least 4 weeks"
+      ]
+    }
+  ]
+}

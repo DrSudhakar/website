@@ -1,0 +1,468 @@
+[
+  {
+    "title": "Validation of Neuphony 8-channel EEG flexcap: a comparative study with BioSemi 64-channel EEG system",
+    "authors": [
+      "Ankita Rani",
+      "Amrendra Singh",
+      "Sudhakar Mishra"
+    ],
+    "venue": "Frontiers in Neuroscience 19, 1670860",
+    "year": 2025,
+    "type": "journal",
+    "status": "published",
+    "doi": "",
+    "url": "",
+    "featured": false,
+    "id": "m01",
+    "citations": 1
+  },
+  {
+    "title": "Affective Film Dataset from India (AFDI): Creation and Validation with an Indian Sample",
+    "authors": [
+      "Sudhakar Mishra",
+      "Narayanan Srinivasan",
+      "Mohd Asif",
+      "Uma S Tiwary"
+    ],
+    "venue": "Journal of Cultural Cognitive Science",
+    "year": 2023,
+    "type": "journal",
+    "status": "published",
+    "doi": "10.17605/OSF.IO/M8DWZ",
+    "url": "",
+    "featured": false,
+    "id": "m02",
+    "citations": 6
+  },
+  {
+    "title": "Emotion Recognition Using Temporally Localized Emotional Events in EEG With Naturalistic Context: DENS Dataset",
+    "authors": [
+      "Mohammad Asif",
+      "Sudhakar Mishra",
+      "Majithia Tejas Vinodbhai",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "IEEE Access 11, 39913–39925",
+    "year": 2023,
+    "type": "journal",
+    "status": "published",
+    "doi": "10.1109/ACCESS.2023.3266804",
+    "url": "",
+    "featured": true,
+    "id": "m03",
+    "citations": 43
+  },
+  {
+    "title": "Cardiac–Brain Dynamics Depend on Context Familiarity and Their Interaction Predicts Experience of Emotional Arousal",
+    "authors": [
+      "Sudhakar Mishra",
+      "Narayanan Srinivasan",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "Brain Sciences 12(6), 702",
+    "year": 2022,
+    "type": "journal",
+    "status": "published",
+    "doi": "10.3390/brainsci12060702",
+    "url": "",
+    "featured": true,
+    "id": "m04",
+    "citations": 23
+  },
+  {
+    "title": "Dynamic functional connectivity of emotion processing in beta band with naturalistic emotion stimuli",
+    "authors": [
+      "Sudhakar Mishra",
+      "Narayanan Srinivasan",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "Brain Sciences 12(8), 1106",
+    "year": 2022,
+    "type": "journal",
+    "status": "published",
+    "doi": "10.3390/brainsci12081106",
+    "url": "",
+    "featured": true,
+    "id": "m05",
+    "citations": 46
+  },
+  {
+    "title": "Effect of Contemplative Debate Practice (from Gelug Tradition) on Emotion Regulation and Experience",
+    "authors": [
+      "Sudhakar Mishra",
+      "Marieke van Vugt",
+      "Narayanan Srinivasan"
+    ],
+    "venue": "Mindfulness",
+    "year": 2026,
+    "type": "journal",
+    "status": "published",
+    "doi": "",
+    "url": "",
+    "featured": false,
+    "id": "m06"
+  },
+  {
+    "title": "A high-dimensional semantic space of emotion representations support circumplex structure",
+    "authors": [
+      "Sudhakar Mishra",
+      "Narayanan Srinivasan",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "Proceedings of the Annual Meeting of the Cognitive Science Society, vol. 46",
+    "year": 2024,
+    "type": "conference",
+    "status": "published",
+    "doi": "",
+    "url": "",
+    "featured": false,
+    "id": "m07"
+  },
+  {
+    "title": "Spatially-Infused Spectrograms for Robust EEG Feature Extraction in Deep Learning Frameworks",
+    "authors": [
+      "Mohammad Asif",
+      "Noman Ali",
+      "Sudhakar Mishra",
+      "U S Tiwary"
+    ],
+    "venue": "ICASSP 2026 – IEEE Int. Conf. on Acoustics, Speech and Signal Processing, pp. 6881–6885",
+    "year": 2026,
+    "type": "conference",
+    "status": "published",
+    "doi": "",
+    "url": "",
+    "featured": false,
+    "id": "m08",
+    "citations": 1
+  },
+  {
+    "title": "Cross Cultural Comparison of Emotional Functional Networks",
+    "authors": [
+      "Mohammad Asif",
+      "Sudhakar Mishra",
+      "Jerald Kannath",
+      "Tarun Jayadevan",
+      "Divakar Singh",
+      "Gauttam Goyal",
+      "Aalok Bhuyar",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "Intelligent Human Computer Interaction (IHCI), Springer, pp. 106–114",
+    "year": 2024,
+    "type": "conference",
+    "status": "published",
+    "doi": "",
+    "url": "",
+    "featured": false,
+    "id": "m09",
+    "citations": 1
+  },
+  {
+    "title": "Brain Multi-Region Information Fusion using Attentional Transformer for EEG Based Affective Computing",
+    "authors": [
+      "Mohammad Asif",
+      "Aditya Gupta",
+      "Aditya Aditya",
+      "Sudhakar Mishra",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "IEEE INDICON",
+    "year": 2023,
+    "type": "conference",
+    "status": "published",
+    "doi": "",
+    "url": "",
+    "featured": false,
+    "id": "m10",
+    "citations": 4
+  },
+  {
+    "title": "Emotion Recognition in VAD space during Emotional Events using CNN-GRU hybrid model on EEG Signals",
+    "authors": [
+      "M. T. Vinodbhai",
+      "Sudhakar Mishra",
+      "Asif Mohammad",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "14th International Conference on Human-Computer Interaction (IHCI), Springer LNCS",
+    "year": 2022,
+    "type": "conference",
+    "status": "published",
+    "doi": "",
+    "url": "",
+    "featured": false,
+    "id": "m11",
+    "citations": 8
+  },
+  {
+    "title": "Context-sensitive interaction dominant brain dynamics during emotional experiences in upper beta band",
+    "authors": [
+      "Sudhakar Mishra",
+      "Narayanan Srinivasan",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "Society for Neuroscience, 558.19",
+    "year": 2022,
+    "type": "conference",
+    "status": "published",
+    "doi": "",
+    "url": "",
+    "featured": false,
+    "id": "m12"
+  },
+  {
+    "title": "EEG based biometric identification with reduced number of channels",
+    "authors": [
+      "Brijraj Singh",
+      "Sudhakar Mishra",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "17th International Conference on Advanced Communication Technology (ICACT), IEEE, pp. 687–691",
+    "year": 2015,
+    "type": "conference",
+    "status": "published",
+    "doi": "",
+    "url": "",
+    "featured": false,
+    "id": "m13",
+    "citations": 25
+  },
+  {
+    "title": "Heart rate measurement using video in different user states for online HCI applications",
+    "authors": [
+      "Sudhakar Mishra",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "Procedia Computer Science 39, 20–27 (Best Paper Award, IHCI 2014)",
+    "year": 2014,
+    "type": "conference",
+    "status": "published",
+    "doi": "",
+    "url": "",
+    "featured": false,
+    "id": "m14",
+    "citations": 8
+  },
+  {
+    "title": "Selector-Guided Autonomous Curriculum for One-Shot Reinforcement Learning from Verifiable Rewards",
+    "authors": [
+      "Rudray Dave",
+      "Vedang Dubey",
+      "Smit Deoghare",
+      "Sudhakar Mishra"
+    ],
+    "venue": "arXiv:2605.01823",
+    "year": 2026,
+    "type": "preprint",
+    "status": "under-review",
+    "doi": "",
+    "url": "https://arxiv.org/abs/2605.01823",
+    "featured": true,
+    "id": "m15",
+    "citations": 1
+  },
+  {
+    "title": "Can You Break RLVER? Probing Adversarial Robustness of RL-Trained Empathetic Agents",
+    "authors": [
+      "Sadhana Devarajan",
+      "Krishna Mehra",
+      "Sudhakar Mishra"
+    ],
+    "venue": "arXiv:2605.07138",
+    "year": 2026,
+    "type": "preprint",
+    "status": "under-review",
+    "doi": "",
+    "url": "https://arxiv.org/abs/2605.07138",
+    "featured": true,
+    "id": "m16"
+  },
+  {
+    "title": "Adaptive Negative Reinforcement for LLM Reasoning: Dynamically Balancing Correction and Diversity in RLVR",
+    "authors": [
+      "Yash Ingle",
+      "Jaival Chauhan",
+      "Ankit Yadav",
+      "Sudhakar Mishra"
+    ],
+    "venue": "arXiv:2605.07137",
+    "year": 2026,
+    "type": "preprint",
+    "status": "under-review",
+    "doi": "",
+    "url": "https://arxiv.org/abs/2605.07137",
+    "featured": false,
+    "id": "m17",
+    "citations": 1
+  },
+  {
+    "title": "Deep fuzzy framework for emotion recognition using EEG signals and emotion representation in type-2 fuzzy VAD space",
+    "authors": [
+      "Mohammad Asif",
+      "Sudhakar Mishra",
+      "Noman Ali",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "IEEE Transactions on Affective Computing (under review)",
+    "year": 2025,
+    "type": "preprint",
+    "status": "under-review",
+    "doi": "",
+    "url": "",
+    "featured": false,
+    "id": "m18",
+    "citations": 10
+  },
+  {
+    "title": "Microstate Transitions Encode Emotional Events",
+    "authors": [
+      "Sudhakar Mishra",
+      "Asif Mohammad",
+      "Narayanan Srinivasan",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "Cognitive Neurodynamics (under review)",
+    "year": 2025,
+    "type": "preprint",
+    "status": "under-review",
+    "doi": "",
+    "url": "https://arxiv.org/abs/2210.08588",
+    "featured": false,
+    "id": "m19"
+  },
+  {
+    "title": "Dataset on Emotion with Naturalistic Stimuli (DENS) on Indian Samples",
+    "authors": [
+      "Sudhakar Mishra",
+      "Asif Mohammad",
+      "Narayanan Srinivasan",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "Nature Scientific Data (under review)",
+    "year": 2025,
+    "type": "dataset",
+    "status": "under-review",
+    "doi": "",
+    "url": "",
+    "featured": false,
+    "id": "m20",
+    "citations": 20
+  },
+  {
+    "title": "An Affective Video Database using Multimedia Content Analysis rated on Indian samples",
+    "authors": [
+      "Sudhakar Mishra",
+      "Narayanan Srinivasan",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "arXiv:2210.09785",
+    "year": 2022,
+    "type": "dataset",
+    "status": "published",
+    "doi": "",
+    "url": "https://arxiv.org/abs/2210.09785",
+    "featured": false,
+    "id": "m21",
+    "citations": 2
+  },
+  {
+    "title": "To see, not to see or when to see: An EEG Many Labs replication study with a twist",
+    "authors": [
+      "Manuela Ruzzoli",
+      "Mireia Torralba Cuello",
+      "Nicola Molinaro",
+      "Sudhakar Mishra",
+      "Narayanan Srinivasan",
+      "Christopher S. Y. Benwell",
+      "Daniel Berkowitz",
+      "Debora Brignani"
+    ],
+    "venue": "In preparation",
+    "year": 2025,
+    "type": "inprogress",
+    "status": "in-progress",
+    "doi": "",
+    "url": "",
+    "featured": false,
+    "id": "m22"
+  },
+  {
+    "title": "Spontaneous EEG oscillations reveal periodic sampling of visual attention: An EEG Many Labs replication study",
+    "authors": [
+      "Sudhakar Mishra",
+      "Ramya Mudumba",
+      "Alessia Santoni",
+      "Andreas Wutz",
+      "Christoph Huber-Huber",
+      "Luca Ronconi",
+      "F. Mushtaq",
+      "Pavlov Y. G.",
+      "N Srinivasan"
+    ],
+    "venue": "In preparation",
+    "year": 2025,
+    "type": "inprogress",
+    "status": "in-progress",
+    "doi": "",
+    "url": "",
+    "featured": false,
+    "id": "m23"
+  },
+  {
+    "title": "Proactive Emotion Tracker: AI-Driven Continuous Mood and Emotion Monitoring",
+    "authors": [
+      "Mohammad Asif",
+      "Sudhakar Mishra",
+      "Ankush Sonker",
+      "Sanidhya Gupta",
+      "Somesh Kumar Maurya",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "arXiv (Cornell University)",
+    "year": 2024,
+    "type": "preprint",
+    "status": "published",
+    "doi": "10.48550/arxiv.2401.13722",
+    "url": "",
+    "featured": false,
+    "citations": 7,
+    "auto": true,
+    "id": "a023"
+  },
+  {
+    "title": "Analysis of Microstate Organization During Emotional Events",
+    "authors": [
+      "Sudhakar Mishra",
+      "Narayanan Srinivasan",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "arXiv (Cornell University)",
+    "year": 2022,
+    "type": "preprint",
+    "status": "published",
+    "doi": "10.48550/arxiv.2210.08588",
+    "url": "",
+    "featured": false,
+    "citations": 1,
+    "auto": true,
+    "id": "a024"
+  },
+  {
+    "title": "A Cognition-Affect Integrated Model of Emotion",
+    "authors": [
+      "Sudhakar Mishra",
+      "Uma Shanker Tiwary"
+    ],
+    "venue": "arXiv (Cornell University)",
+    "year": 2019,
+    "type": "preprint",
+    "status": "published",
+    "doi": "10.48550/arxiv.1907.02557",
+    "url": "",
+    "featured": false,
+    "citations": 3,
+    "auto": true,
+    "id": "a025"
+  }
+]

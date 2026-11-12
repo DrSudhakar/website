@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LLM Empathy Checker · Sudhakar Mishra</title>
+  <meta name="description" content="Compare the empathy of open-source and paid LLMs on standardised emotional scenarios.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%238a2a2b'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='Georgia'%3ESM%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/config.js"></script>
+  <script defer src="../assets/js/site.js"></script>
+  <script defer src="../assets/js/charts.js"></script>
+</head>
+<body>
+<main id="main" class="wrap">
+  <p><a href="../glance.html">← Work at a glance</a></p>
+  <h1 class="page-title">LLM empathy checker</h1>
+  <p class="lede">Type the name of any open-source model from Hugging Face — or add a paid model with your own API key — pick several, and compare how empathetically they respond to the same emotional messages.</p>
+  <div id="svc" class="callout"></div>
+
+  <div class="panel">
+    <h3>1 · Open-source models</h3>
+    <p class="note">The list refreshes itself every week with the models that are currently trending on Hugging Face <em>and</em> actually served by an inference provider. Don't see yours? Type its Hugging Face id below — it is checked live and added to the list.</p>
+    <div class="form-row">
+      <div style="flex:1;min-width:260px"><label for="hfq">Add any model (e.g. <code>meta-llama/Llama-3.1-8B-Instruct</code>)</label>
+        <input type="text" id="hfq" list="hfsug" placeholder="owner/model-name" autocomplete="off"><datalist id="hfsug"></datalist></div>
+      <button class="btn" id="hfadd">Check &amp; add</button>
+    </div>
+    <p class="note" id="hfmsg" aria-live="polite"></p>
+    <div class="model-pick" id="oss" aria-label="Open-source models"><span class="note">Loading list…</span></div>
+  </div>
+
+  <div class="panel">
+    <h3>2 · Paid models (optional, bring your own API key)</h3>
+    <p class="note">🔑 Your key is sent over HTTPS to this site's backend only to relay <em>this one request</em> to the provider. It is never stored or logged, and it stays only in this page's memory (it disappears when you close the tab).</p>
+    <div class="form-row">
+      <div><label for="pprov">Provider</label><select id="pprov"></select></div>
+      <div><label for="pmodel">Model name</label><input type="text" id="pmodel" placeholder="exact name from the provider's docs" style="min-width:230px"></div>
+      <div><label for="pkey">API key</label><input type="password" id="pkey" autocomplete="off" placeholder="sk-…" style="min-width:200px"></div>
+      <button class="btn" id="padd">Add</button>
+    </div>
+    <div id="paid"></div>
+  </div>
+
+  <div class="panel">
+    <h3>3 · Settings &amp; run</h3>
+    <div class="form-row">
+      <div><label for="nscen">Scenarios per model: <span id="nscenV">6</span></label><input type="range" id="nscen" min="2" max="8" value="6"></div>
+      <div><label for="judge">Scoring judge</label>
+        <select id="judge"><option value="default">Open-source judge on the server (recommended)</option><option value="custom">Use one of my own API models as judge</option><option value="none">No judge — lexical heuristics only (free, shallow)</option></select></div>
+    </div>
+    <div class="form-row" id="judgeCustom" style="display:none">
+      <div><label for="jprov">Judge provider</label><select id="jprov"></select></div>
+      <div><label for="jmodel">Judge model</label><input type="text" id="jmodel" style="min-width:200px"></div>
+      <div><label for="jkey">Judge API key</label><input type="password" id="jkey" autocomplete="off" style="min-width:200px"></div>
+    </div>
+    <p class="note">Up to 5 models per run. Each model answers the same first-person messages about grief, job loss, loneliness, shame, joy and more; replies are scored on four dimensions (below). A run takes 1–3 minutes.</p>
+    <button class="btn primary" id="run">▶ Compare empathy</button> <span id="runmsg" class="note" aria-live="polite"></span>
+  </div>
+
+  <div id="out"></div>
+
+  <div class="panel"><h3>How empathy is scored</h3>
+    <p>Each reply gets 1–5 on four dimensions adapted from the EPITOME framework (Sharma et al., EMNLP 2020):</p>
+    <ul><li><b>Emotional reaction</b> — warmth; acknowledges and names the person's feelings.</li><li><b>Interpretation</b> — shows understanding of <em>this</em> situation, not generic sympathy.</li><li><b>Exploration</b> — gently invites the person to say more, or offers fitting support.</li><li><b>Appropriateness</b> — no minimising, toxic positivity, lecturing or premature advice.</li></ul>
+    <p>The <b>overall score (0–100)</b> is 75% judge rating and 25% a lexical heuristic (feeling words, validation phrases, questions, penalties for advice-first replies and bullet lists).</p>
+    <div class="callout warn"><b>Limits.</b> Using an LLM as the judge is an approximation: judges can favour long or flattering answers and their own style. Results depend on the 12 fixed scenarios, a single sample per scenario and the chosen judge. Treat the ranking as a quick comparison, not a clinical or definitive measure of empathy.</div></div>
+</main>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const $ = (id) => document.getElementById(id), esc = (s) => window.Site ? Site.esc(s) : String(s);
+  const cfg = window.SITE_CONFIG || {};
+  const PROVIDERS = { openai: "OpenAI", anthropic: "Anthropic", google: "Google Gemini", mistral: "Mistral", deepseek: "DeepSeek", together: "Together AI", openrouter: "OpenRouter", hf: "Hugging Face (use my own HF token)" };
+  const sel = { open: new Set(), paid: [] };            // paid: [{provider, model, api_key}]
+  let custom = []; try { custom = JSON.parse(localStorage.getItem("llm_custom") || "[]"); } catch (_) {}
+  const saveCustom = () => { try { localStorage.setItem("llm_custom", JSON.stringify(custom)); } catch (_) {} };
+  for (const id of ["pprov", "jprov"]) $(id).innerHTML = Object.entries(PROVIDERS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+
+  // service status
+  const svc = $("svc");
+  if (!cfg.EMPATHY_URL) { svc.className = "callout warn"; svc.innerHTML = "⚙️ <b>Backend not connected yet.</b> This page needs the Firebase function deployed — see <code>GUIDE.md</code> → Part 5, then paste the URL into <code>assets/js/config.js</code>. You can still browse and select models."; $("run").disabled = true; }
+  else { svc.className = "callout"; svc.textContent = "Checking backend…"; fetch(cfg.STATUS_URL).then((r) => r.json()).then(() => { svc.textContent = "✅ Backend online."; }).catch(() => { svc.className = "callout bad"; svc.textContent = "Backend unreachable — check the URL in config.js and the CORS origin in functions/.env."; }); }
+
+  // open-source model list
+  const data = await Site.loadJSON("data/llm_models.json", { models: [] });
+  function drawOSS() {
+    const ids = new Set(data.models.map((m) => m.id)); const rows = [...data.models];
+    custom.forEach((id) => !ids.has(id) && rows.unshift({ id, custom: true }));
+    $("oss").innerHTML = rows.length ? rows.map((m) => {
+      const tag = m.custom ? " ★" : (m.added && Date.now() - Date.parse(m.added) < 14 * 864e5 ? " 🆕" : ""); const sz = m.params_b ? ` · ${m.params_b}B` : "";
+      return `<label title="${esc(m.id)}"><input type="checkbox" value="${esc(m.id)}" ${sel.open.has(m.id) ? "checked" : ""}> ${esc(m.id)}<span class="note">${sz}${tag}</span></label>`;
+    }).join("") : '<span class="note">No models listed yet.</span>';
+  }
+  $("oss").addEventListener("change", (e) => { const v = e.target.value; if (e.target.checked) sel.open.add(v); else sel.open.delete(v); count(); });
+  drawOSS();
+
+  // autocomplete + validate typed model names against the Hugging Face Hub
+  let t; $("hfq").addEventListener("input", () => { clearTimeout(t); const q = $("hfq").value.trim(); if (q.length < 3) return;
+    t = setTimeout(async () => { try { const r = await fetch(`https://huggingface.co/api/models?search=${encodeURIComponent(q)}&pipeline_tag=text-generation&inference_provider=all&sort=downloads&limit=8`); const j = await r.json(); $("hfsug").innerHTML = j.map((m) => `<option value="${esc(m.id)}">`).join(""); } catch (_) {} }, 300); });
+  $("hfadd").addEventListener("click", async () => {
+    const id = $("hfq").value.trim(); const msg = $("hfmsg"); if (!/^[\w.-]+\/[\w.-]+$/.test(id)) { msg.textContent = "Use the form owner/model-name, as shown on huggingface.co."; return; }
+    msg.innerHTML = '<span class="spinner"></span>Checking on Hugging Face…';
+    try {
+      const r = await fetch(`https://huggingface.co/api/models/${id}?expand[]=inferenceProviderMapping&expand[]=pipeline_tag`);
+      if (!r.ok) { msg.textContent = "❌ No such model on Hugging Face."; return; }
+      const j = await r.json(); const live = (j.inferenceProviderMapping || []).filter((p) => p.status === "live");
+      if (!live.length) { msg.textContent = "⚠️ This model exists, but no inference provider is serving it right now, so it can't be run from here. Try a hosted variant or a different model."; return; }
+      if (!custom.includes(id) && !data.models.some((m) => m.id === id)) { custom.unshift(id); saveCustom(); }
+      sel.open.add(id); drawOSS(); count(); msg.textContent = `✅ Added ${id} (served by ${live.map((p) => p.provider).slice(0, 3).join(", ")}) and selected.`; $("hfq").value = "";
+    } catch (e) { msg.textContent = "Could not reach Hugging Face: " + e.message; }
+  });
+
+  // paid models
+  function drawPaid() { $("paid").innerHTML = sel.paid.map((m, i) => `<span class="chip accent" style="margin:3px">${esc(PROVIDERS[m.provider])} · ${esc(m.model)} <a href="#" data-rm="${i}" aria-label="remove" style="text-decoration:none">✕</a></span>`).join(""); }
+  $("paid").addEventListener("click", (e) => { const i = e.target.dataset.rm; if (i !== undefined) { e.preventDefault(); sel.paid.splice(+i, 1); drawPaid(); count(); } });
+  $("padd").addEventListener("click", () => {
+    const m = $("pmodel").value.trim(), k = $("pkey").value.trim(), p = $("pprov").value;
+    if (!/^[\w./:@+-]{2,120}$/.test(m)) return alert("Enter the model name exactly as the provider documents it."); if (!k) return alert("An API key is required for paid models.");
+    sel.paid.push({ provider: p, model: m, api_key: k }); $("pmodel").value = ""; $("pkey").value = ""; drawPaid(); count();
+  });
+
+  $("nscen").addEventListener("input", () => ($("nscenV").textContent = $("nscen").value));
+  $("judge").addEventListener("change", () => ($("judgeCustom").style.display = $("judge").value === "custom" ? "flex" : "none"));
+  const total = () => sel.open.size + sel.paid.length;
+  function count() { $("runmsg").textContent = `${total()} model(s) selected${total() > 5 ? " — max 5 per run" : ""}`; }
+  count();
+
+  // run
+  $("run").addEventListener("click", async () => {
+    if (!total()) return alert("Select at least one model."); if (total() > 5) return alert("Please select at most 5 models per run.");
+    const body = { models: [...[...sel.open].map((id) => ({ provider: "hf", model: id })), ...sel.paid], n_scenarios: +$("nscen").value };
+    if ($("judge").value === "none") body.judge = false;
+    if ($("judge").value === "custom") { if (!$("jmodel").value || !$("jkey").value) return alert("Fill in the judge model and key."); body.judge = { provider: $("jprov").value, model: $("jmodel").value.trim(), api_key: $("jkey").value.trim() }; }
+    $("run").disabled = true; $("runmsg").innerHTML = '<span class="spinner"></span>Running… this takes 1–3 minutes. Please keep this tab open.'; $("out").innerHTML = "";
+    try {
+      const r = await fetch(cfg.EMPATHY_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status);
+      render(j); $("runmsg").textContent = "Done.";
+    } catch (e) { $("runmsg").textContent = "❌ " + e.message; }
+    $("run").disabled = false;
+  });
+
+  const DIMS = [["emotional_reaction", "Emotional reaction"], ["interpretation", "Interpretation"], ["exploration", "Exploration"], ["appropriateness", "Appropriateness"]];
+  let last = null;
+  function render(res) {
+    last = res; const ms = res.models;
+    const rows = ms.map((m, i) => { const s = m.summary; return `<tr><td>${i + 1}</td><td><b>${esc(m.model)}</b><div class="note">${esc(m.provider)}</div></td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div style="background:var(--surface-2);border-radius:6px;width:110px;height:12px;overflow:hidden"><div style="width:${s.overall || 0}%;height:100%;background:var(--accent)"></div></div><b>${s.overall ?? "–"}</b></div></td>
+      ${DIMS.map(([k]) => `<td>${s.dimensions[k] ?? "–"}</td>`).join("")}<td>${s.heuristic ?? "–"}</td><td>${s.n_ok}/${s.n_ok + s.n_failed}</td></tr>${s.errors.length ? `<tr><td></td><td colspan="9" class="note" style="color:var(--bad)">⚠ ${s.errors.map(esc).join(" · ")}</td></tr>` : ""}`; }).join("");
+    $("out").innerHTML = `<div class="panel"><h3>Results</h3>
+      ${res.judge ? `<p class="note">Judge: ${esc(res.judge.provider)}/${esc(res.judge.model)}</p>` : '<p class="note">No judge — heuristic scores only.</p>'}
+      <div class="table-wrap"><table><thead><tr><th>#</th><th>Model</th><th>Overall (0–100)</th>${DIMS.map(([, l]) => `<th>${l}<br>(1–5)</th>`).join("")}<th>Lexical (0–100)</th><th>Replies scored</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <canvas id="chart" style="width:100%;margin-top:14px"></canvas><div id="chartLegend"></div>
+      <div class="links"><button class="btn small" id="dlJson">⬇ JSON</button><button class="btn small" id="dlCsv">⬇ CSV</button></div></div>
+      <div class="panel"><h3>Replies, scenario by scenario</h3>${res.scenarios.map((sc) => `<details style="margin-bottom:10px"><summary><b>${esc(sc.emotion)}</b> — ${esc(sc.text.slice(0, 90))}…</summary>
+        <p class="note" style="margin-top:8px"><em>${esc(sc.text)}</em></p>${ms.map((m) => { const r = m.scenarios[sc.id]; if (!r) return ""; return r.error ? `<div class="card" style="margin:8px 0"><b>${esc(m.model)}</b><p class="note" style="color:var(--bad)">${esc(r.error)}</p></div>`
+          : `<div class="card" style="margin:8px 0"><b>${esc(m.model)}</b> <span class="chip accent">${r.score}</span>${r.judge ? ` <span class="note">E${r.judge.emotional_reaction} I${r.judge.interpretation} X${r.judge.exploration} A${r.judge.appropriateness} — ${esc(r.judge.rationale)}</span>` : ""}<p style="white-space:pre-wrap;margin:8px 0 0">${esc(r.reply)}</p></div>`; }).join("")}</details>`).join("")}</div>`;
+    const leg = Charts.groupedBars($("chart"), DIMS.map((d) => d[1]), ms.map((m) => ({ name: m.model, values: DIMS.map(([k]) => m.summary.dimensions[k] || 0) })), { max: 5, title: "Mean judge rating (1–5)" });
+    $("chartLegend").innerHTML = Charts.legend(leg);
+    const dl = (name, text, type) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); };
+    $("dlJson").onclick = () => dl("empathy_results.json", JSON.stringify(last, null, 2), "application/json");
+    $("dlCsv").onclick = () => dl("empathy_results.csv", ["model,provider,overall,heuristic," + DIMS.map((d) => d[0]).join(",")].concat(last.models.map((m) => [m.model, m.provider, m.summary.overall, m.summary.heuristic, ...DIMS.map(([k]) => m.summary.dimensions[k])].join(","))).join("\n"), "text/csv");
+  }
+});
+</script>
+</body>
+</html>

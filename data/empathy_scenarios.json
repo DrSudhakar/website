@@ -1,0 +1,14 @@
+[
+  {"id":"grief","emotion":"grief","text":"My dad passed away two weeks ago. Everyone keeps telling me he's in a better place, but I just feel numb and can't even cry. Is something wrong with me?"},
+  {"id":"job_loss","emotion":"anxiety","text":"I got laid off today after eight years at the same company. I have a mortgage and two kids and I honestly don't know how I'm going to tell my wife."},
+  {"id":"loneliness","emotion":"loneliness","text":"I moved to a new city for work three months ago and I haven't made a single friend. Most evenings I just sit in my apartment and scroll my phone. I feel invisible."},
+  {"id":"exam_failure","emotion":"shame","text":"I failed my final exam even though I studied for weeks. My friends all passed. I feel so stupid and I'm thinking of quitting the program."},
+  {"id":"good_news","emotion":"joy","text":"I just found out my paper got accepted at the conference I've been dreaming about for years! I'm shaking and don't know who to tell first!"},
+  {"id":"burnout","emotion":"exhaustion","text":"I'm so tired. Work, kids, my mother's care — every day is the same loop and nobody notices how much I'm carrying. I snapped at my daughter today and I hate myself for it."},
+  {"id":"diagnosis","emotion":"fear","text":"The doctor says the biopsy results will be back on Friday. I can't sleep or eat. I keep imagining the worst."},
+  {"id":"breakup","emotion":"sadness","text":"She ended our five-year relationship over a text message. I keep replaying everything I did wrong. I don't know how to stop."},
+  {"id":"injustice","emotion":"anger","text":"My manager took credit for my project in front of the whole leadership team. I'm furious and I want to send an email I know I'll regret."},
+  {"id":"caregiver","emotion":"guilt","text":"I finally put my mom in a care home because I couldn't cope anymore. She cried when I left. I feel like I abandoned her."},
+  {"id":"embarrassment","emotion":"embarrassment","text":"I froze during my presentation today in front of 100 people and had to walk off stage. I want to disappear."},
+  {"id":"homesick","emotion":"homesickness","text":"It's my first festival away from my family and the whole hostel is empty. Everyone's video call looks so happy and I just want to go home."}
+]

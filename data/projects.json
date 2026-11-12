@@ -1,0 +1,75 @@
+[
+  {
+    "title": "Selector-Guided Autonomous Curriculum for One-Shot RLVR",
+    "status": "Under review",
+    "area": "Reinforcement learning · LLMs",
+    "summary": "An autonomous curriculum that selects training prompts for one-shot reinforcement learning from verifiable rewards.",
+    "people": [
+      "Rudray Dave",
+      "Vedang Dubey",
+      "Smit Deoghare",
+      "Sudhakar Mishra"
+    ],
+    "link": "https://arxiv.org/abs/2605.01823"
+  },
+  {
+    "title": "Can You Break RLVER? Adversarial Robustness of RL-Trained Empathetic Agents",
+    "status": "Under review",
+    "area": "Empathetic AI · Safety",
+    "summary": "Probes how robust empathetic dialogue agents trained with RL are to adversarial users.",
+    "people": [
+      "Sadhana Devarajan",
+      "Krishna Mehra",
+      "Sudhakar Mishra"
+    ],
+    "link": "https://arxiv.org/abs/2605.07138"
+  },
+  {
+    "title": "Adaptive Negative Reinforcement for LLM Reasoning",
+    "status": "Under review",
+    "area": "Reinforcement learning · LLMs",
+    "summary": "Dynamically balances correction and diversity when using negative samples in RLVR.",
+    "people": [
+      "Yash Ingle",
+      "Jaival Chauhan",
+      "Ankit Yadav",
+      "Sudhakar Mishra"
+    ],
+    "link": "https://arxiv.org/abs/2605.07137"
+  },
+  {
+    "title": "Spatiotemporal dynamics of emotion: DENS & microstates",
+    "status": "Ongoing",
+    "area": "Affective neuroscience · EEG",
+    "summary": "A naturalistic EEG dataset on Indian samples (DENS), the Emotional Event Marker Paradigm, and microstate / connectivity analyses of emotional events.",
+    "people": [
+      "Sudhakar Mishra",
+      "Mohammad Asif",
+      "Narayanan Srinivasan",
+      "Uma Shanker Tiwary"
+    ],
+    "link": "https://arxiv.org/abs/2210.08588"
+  },
+  {
+    "title": "Contemplative debate and emotion regulation",
+    "status": "Ongoing",
+    "area": "Contemplative science · EEG/fMRI",
+    "summary": "How learning Tibetan monastic debate changes emotion regulation, meditative absorption and brain activity.",
+    "people": [
+      "Sudhakar Mishra",
+      "Marieke van Vugt",
+      "Narayanan Srinivasan"
+    ],
+    "link": ""
+  },
+  {
+    "title": "Webcam cardiac and affect sensing",
+    "status": "Ongoing",
+    "area": "HCI · Affective computing",
+    "summary": "Contact-free heart-rate / HRV estimation and facial-expression profiling from ordinary webcams (see Work at a Glance).",
+    "people": [
+      "Sudhakar Mishra"
+    ],
+    "link": "glance.html"
+  }
+]

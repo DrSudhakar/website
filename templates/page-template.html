@@ -1,0 +1,63 @@
+<!doctype html>
+<!--
+  PAGE TEMPLATE — how to add a new page to your website
+  ======================================================
+  1. Copy this file into the main folder, giving it a short lowercase name, e.g.  awards.html
+  2. Change the 3 things marked  ✏️  below (title, description, content).
+  3. Open assets/js/site.js and add ONE line to the NAV list so a tab appears:
+         { label: "Awards", href: "awards.html" },
+  4. Save, commit, push — done. (Pages inside the demos/ folder need "../" in front of the css/js paths.)
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- ✏️ 1. Page title (shows in the browser tab) -->
+  <title>New Page · Sudhakar Mishra</title>
+  <!-- ✏️ 2. One-sentence description (shows in Google results) -->
+  <meta name="description" content="Describe this page in one sentence.">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script defer src="assets/js/site.js"></script>
+</head>
+<body>
+<main id="main" class="wrap">
+
+  <!-- ✏️ 3. Your content goes between here ... -->
+  <h1 class="page-title">New page title</h1>
+  <p class="lede">A one- or two-sentence introduction.</p>
+
+  <section class="section">
+    <h2>A section heading</h2>
+    <p>Normal paragraph text. You can use <b>bold</b>, <em>italics</em> and <a href="https://example.com">links</a>.</p>
+    <ul>
+      <li>A bullet point</li>
+      <li>Another bullet point</li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>Cards in a grid</h2>
+    <div class="grid cols-2">
+      <div class="card"><h3>Card title</h3><p>Card text.</p></div>
+      <div class="card"><h3>Another card</h3><p>More text.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>An image</h2>
+    <img src="assets/img/profile.jpg" alt="Describe the image for screen readers" style="max-width:260px;border-radius:12px">
+  </section>
+
+  <!-- Ready-made blocks that read from the data/ folder — just uncomment what you need:
+  <div data-render="news" data-limit="5"></div>
+  <div data-render="publications" data-featured="true" data-limit="5"></div>
+  <div data-render="videos"></div>
+  <div data-render="projects"></div>
+  -->
+  <!-- ... and here -->
+
+</main>
+</body>
+</html>

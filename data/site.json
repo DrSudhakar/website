@@ -1,0 +1,43 @@
+{
+  "name": "Sudhakar Mishra",
+  "title": "Assistant Professor",
+  "department": "Department of Artificial Intelligence",
+  "institute": "Sardar Vallabhbhai National Institute of Technology (SVNIT), Surat",
+  "location": "Surat, Gujarat, India",
+  "lab": "Human-Centered Intelligent Artifacts (HCIA) Lab",
+  "tagline": "Affective neuroscience, affective computing and reinforcement learning — building AI that understands human emotion.",
+  "photo": "assets/img/profile.jpg",
+  "email": "",
+  "cv_file": "assets/Sudhakar_Mishra_CV.pdf",
+  "bio": [
+    "I am an Assistant Professor in the Department of Artificial Intelligence at SVNIT Surat, with an interdisciplinary background spanning affective neuroscience, cognitive science and AI. I hold a Ph.D. in Affective Neuroscience and an M.Tech. in Human–Computer Interaction from IIIT Allahabad, and I have worked extensively with EEG, fMRI and computational models of emotion.",
+    "Before joining SVNIT in October 2025, I was a Postdoctoral Fellow in the Department of Cognitive Science at IIT Kanpur (with Prof. Narayanan Srinivasan and Prof. Marieke van Vugt, University of Groningen), studying how contemplative monastic debate shapes emotion regulation and brain dynamics.",
+    "My lab, Human-Centered Intelligent Artifacts (HCIA), works on the spatiotemporal dynamics of emotion in the brain, EEG microstates, affective computing systems, and reinforcement learning for empathetic and reasoning language models."
+  ],
+  "interests": [
+    "Affective neuroscience",
+    "Affective computing",
+    "EEG microstates & brain dynamics",
+    "Reinforcement learning for LLMs",
+    "Empathetic AI agents",
+    "Human–computer interaction",
+    "Contemplative science",
+    "Computational models of emotion"
+  ],
+  "social": {
+    "scholar": "https://scholar.google.com/citations?user=raA5Dc8AAAAJ&hl=en",
+    "orcid": "https://orcid.org/0000-0002-3748-7153",
+    "linkedin": "",
+    "x": "https://x.com/SUDHAKA66356868",
+    "youtube": "https://www.youtube.com/@HCIA26",
+    "github": ""
+  },
+  "ids": {
+    "scholar_user": "raA5Dc8AAAAJ",
+    "openalex_author": "A5079769055",
+    "orcid": "0000-0002-3748-7153",
+    "youtube_channel_id": "UCtt6Bz2VncqK2fZ3hzYei-g",
+    "youtube_handle": "HCIA26",
+    "auto_add_min_year": 2014
+  }
+}

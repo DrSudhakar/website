@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interactive RL Agent · Sudhakar Mishra</title>
+  <meta name="description" content="Paint a gridworld and watch Q-learning, SARSA or Expected SARSA learn.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%238a2a2b'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='Georgia'%3ESM%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/site.js"></script>
+  <script defer src="../assets/js/rl.js"></script>
+</head>
+<body>
+<main id="main" class="wrap">
+  <p><a href="../glance.html">← Work at a glance</a></p>
+  <h1 class="page-title">Interactive RL agent</h1>
+  <p class="lede">An agent starts in the blue cell and must reach the green goal. Each step costs −1; the red cliff costs −100 and sends it back to start. Everything runs in your browser.</p>
+
+  <div class="panel">
+    <div class="form-row">
+      <div><label for="algo">Algorithm</label>
+        <select id="algo"><option value="qlearning">Q-learning (off-policy)</option><option value="sarsa">SARSA (on-policy)</option><option value="expected">Expected SARSA</option></select></div>
+      <div><label for="alpha">Learning rate α: <span id="alphaV">0.5</span></label><input type="range" id="alpha" min="0.05" max="1" step="0.05" value="0.5"></div>
+      <div><label for="gamma">Discount γ: <span id="gammaV">0.95</span></label><input type="range" id="gamma" min="0.5" max="1" step="0.01" value="0.95"></div>
+      <div><label for="eps">Exploration ε: <span id="epsV">0.10</span></label><input type="range" id="eps" min="0" max="1" step="0.01" value="0.1"></div>
+      <div><label for="slip">Slip chance: <span id="slipV">0.00</span></label><input type="range" id="slip" min="0" max="0.5" step="0.05" value="0"></div>
+    </div>
+    <div class="form-row">
+      <div><label for="preset">Environment</label>
+        <select id="preset"><option value="open">Open field</option><option value="cliff" selected>Cliff walking</option><option value="maze">Maze</option></select></div>
+      <div><label for="tool">Paint tool (click or drag on the grid)</label>
+        <select id="tool"><option value="1">Wall</option><option value="3">Cliff (−100)</option><option value="2">Goal (+50)</option><option value="4">Start</option><option value="0">Erase</option></select></div>
+      <div style="flex-direction:row;gap:8px;align-items:center">
+        <button class="btn primary" id="run">▶ Train</button>
+        <button class="btn" id="step">Step</button>
+        <button class="btn" id="ep100">+100 episodes</button>
+        <button class="btn" id="demo">Show greedy path</button>
+        <button class="btn" id="reset">Reset agent</button>
+      </div>
+    </div>
+    <canvas id="grid" width="800" height="480" aria-label="Gridworld"></canvas>
+    <div class="legend">
+      <span><i style="background:#2b6cb0"></i>Start / agent</span><span><i style="background:#2f855a"></i>Goal</span>
+      <span><i style="background:#c53030"></i>Cliff</span><span><i style="background:#4a5568"></i>Wall</span>
+      <span>Cell shading = max Q-value (cool → warm); arrows = greedy policy</span>
+    </div>
+    <p class="note" id="stats" aria-live="polite"></p>
+  </div>
+
+  <div class="panel"><h3>Return per episode</h3><canvas id="chart" width="800" height="200" aria-label="Episode return chart"></canvas>
+    <p class="note">Tip: on <b>Cliff walking</b>, Q-learning learns the short path along the cliff edge but falls more while exploring; SARSA learns a safer, longer path and scores higher <em>online</em>. Lower ε and watch them converge.</p></div>
+</main>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const $ = (id) => document.getElementById(id);
+  const cv = $("grid"), ctx = cv.getContext("2d"), ch = $("chart"), cctx = ch.getContext("2d");
+  let env, agent, timer = null, showPath = null;
+  const CELL = 80;
+
+  function build() {
+    env = RL.preset($("preset").value);
+    env.slip = Number($("slip").value);
+    agent = new RL.Agent(env, opts());
+    showPath = null; draw();
+  }
+  const opts = () => ({ algo: $("algo").value, alpha: +$("alpha").value, gamma: +$("gamma").value, epsilon: +$("eps").value });
+  function sync() {
+    Object.assign(agent.opts, opts()); env.slip = +$("slip").value;
+    $("alphaV").textContent = (+$("alpha").value).toFixed(2); $("gammaV").textContent = (+$("gamma").value).toFixed(2);
+    $("epsV").textContent = (+$("eps").value).toFixed(2); $("slipV").textContent = (+$("slip").value).toFixed(2);
+  }
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+  function heat(t) { // t in 0..1 : cool -> warm
+    const h = 210 - 190 * t; return `hsl(${h} 55% ${dark() ? 28 : 88}%)`;
+  }
+  const dark = () => { const t = document.documentElement.dataset.theme; return t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; };
+
+  function draw() {
+    const { w, h, cells } = env;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    let lo = Infinity, hi = -Infinity;
+    for (let s = 0; s < w * h; s++) if (cells[s] === RL.EMPTY || cells[s] === RL.START) { const m = agent.qmax(s); lo = Math.min(lo, m); hi = Math.max(hi, m); }
+    if (!(hi > lo)) { lo = 0; hi = 1; }
+    for (let s = 0; s < w * h; s++) {
+      const x = (s % w) * CELL, y = ((s / w) | 0) * CELL, t = cells[s];
+      let fill = css("--surface-2");
+      if (t === RL.EMPTY || t === RL.START) fill = heat((agent.qmax(s) - lo) / (hi - lo));
+      if (t === RL.WALL) fill = "#4a5568"; if (t === RL.GOAL) fill = "#2f855a"; if (t === RL.CLIFF) fill = "#c53030";
+      ctx.fillStyle = fill; ctx.fillRect(x, y, CELL, CELL);
+      ctx.strokeStyle = css("--line"); ctx.strokeRect(x + .5, y + .5, CELL - 1, CELL - 1);
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      if (t === RL.EMPTY || t === RL.START) {
+        const any = agent.Q.slice(s * 4, s * 4 + 4).some((q) => q !== 0);
+        if (any) { ctx.fillStyle = css("--text"); ctx.font = "26px system-ui"; ctx.fillText(RL.ARROWS[agent.greedy(s)], x + CELL / 2, y + CELL / 2 - 4);
+          ctx.font = "11px ui-monospace, monospace"; ctx.fillStyle = css("--muted"); ctx.fillText(agent.qmax(s).toFixed(1), x + CELL / 2, y + CELL - 12); }
+      }
+      if (t === RL.GOAL) { ctx.fillStyle = "#fff"; ctx.font = "600 18px system-ui"; ctx.fillText("GOAL", x + CELL / 2, y + CELL / 2); }
+      if (t === RL.CLIFF) { ctx.fillStyle = "#fff"; ctx.font = "600 13px system-ui"; ctx.fillText("CLIFF", x + CELL / 2, y + CELL / 2); }
+    }
+    // start marker
+    const sx = (env.start % w) * CELL, sy = ((env.start / w) | 0) * CELL;
+    ctx.strokeStyle = "#2b6cb0"; ctx.lineWidth = 3; ctx.strokeRect(sx + 3, sy + 3, CELL - 6, CELL - 6); ctx.lineWidth = 1;
+    if (showPath) { ctx.strokeStyle = "#d69e2e"; ctx.lineWidth = 4; ctx.beginPath();
+      showPath.forEach((s, i) => { const px = (s % w) * CELL + CELL / 2, py = ((s / w) | 0) * CELL + CELL / 2; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }); ctx.stroke(); ctx.lineWidth = 1; }
+    // agent
+    const ax = (agent.s % w) * CELL + CELL / 2, ay = ((agent.s / w) | 0) * CELL + CELL / 2;
+    ctx.fillStyle = "#2b6cb0"; ctx.beginPath(); ctx.arc(ax, ay, 14, 0, 7); ctx.fill(); ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke(); ctx.lineWidth = 1;
+    const last = agent.history.slice(-50); const avg = last.length ? (last.reduce((a, b) => a + b, 0) / last.length).toFixed(1) : "–";
+    $("stats").textContent = `Episodes: ${agent.episode} · Steps: ${agent.steps} · Mean return (last ${last.length}): ${avg}`;
+    drawChart();
+  }
+
+  function drawChart() {
+    const W = ch.width, H = ch.height, pad = 30; cctx.clearRect(0, 0, W, H);
+    const hs = agent.history; if (hs.length < 2) { cctx.fillStyle = css("--muted"); cctx.font = "13px system-ui"; cctx.fillText("Train the agent to see returns here.", 20, 30); return; }
+    const win = Math.max(1, Math.floor(hs.length / 100)); const pts = [];
+    for (let i = 0; i < hs.length; i += win) { const seg = hs.slice(i, i + win); pts.push(seg.reduce((a, b) => a + b, 0) / seg.length); }
+    const lo = Math.min(...pts), hi = Math.max(...pts), span = hi - lo || 1;
+    cctx.strokeStyle = css("--line"); cctx.beginPath(); cctx.moveTo(pad, 10); cctx.lineTo(pad, H - pad); cctx.lineTo(W - 10, H - pad); cctx.stroke();
+    cctx.fillStyle = css("--muted"); cctx.font = "11px system-ui"; cctx.textAlign = "right";
+    cctx.fillText(hi.toFixed(0), pad - 4, 16); cctx.fillText(lo.toFixed(0), pad - 4, H - pad); cctx.textAlign = "left"; cctx.fillText("episodes →", W - 80, H - 10);
+    cctx.strokeStyle = css("--accent"); cctx.lineWidth = 2; cctx.beginPath();
+    pts.forEach((v, i) => { const x = pad + (i / (pts.length - 1)) * (W - pad - 10), y = H - pad - ((v - lo) / span) * (H - pad - 16); i ? cctx.lineTo(x, y) : cctx.moveTo(x, y); }); cctx.stroke(); cctx.lineWidth = 1;
+  }
+
+  function loop() { const t0 = performance.now(); while (performance.now() - t0 < 12) agent.runEpisodes(1); draw(); }
+  function toggle(on) {
+    if (on === undefined) on = !timer;
+    if (on && !timer) timer = setInterval(loop, 30); if (!on && timer) { clearInterval(timer); timer = null; }
+    $("run").textContent = timer ? "⏸ Pause" : "▶ Train";
+  }
+
+  // painting
+  let painting = false;
+  function paint(e) {
+    const r = cv.getBoundingClientRect(); const x = Math.floor(((e.clientX - r.left) / r.width) * env.w), y = Math.floor(((e.clientY - r.top) / r.height) * env.h);
+    if (x < 0 || y < 0 || x >= env.w || y >= env.h) return;
+    env.set(env.idx(x, y), Number($("tool").value)); agent.reset(); showPath = null; draw();
+  }
+  cv.addEventListener("pointerdown", (e) => { painting = true; cv.setPointerCapture(e.pointerId); paint(e); });
+  cv.addEventListener("pointermove", (e) => painting && paint(e));
+  cv.addEventListener("pointerup", () => (painting = false));
+
+  ["algo", "alpha", "gamma", "eps", "slip"].forEach((id) => $(id).addEventListener("input", () => { sync(); if (id === "algo") { agent.reset(); showPath = null; } draw(); }));
+  $("preset").addEventListener("change", () => { toggle(false); build(); sync(); });
+  $("run").addEventListener("click", () => toggle());
+  $("step").addEventListener("click", () => { toggle(false); agent.step(); draw(); });
+  $("ep100").addEventListener("click", () => { toggle(false); agent.runEpisodes(100); draw(); });
+  $("demo").addEventListener("click", () => { toggle(false); const g = agent.greedyPath(); showPath = g.path; draw(); $("stats").textContent += g.reached ? ` · Greedy path reaches the goal in ${g.path.length - 1} steps.` : " · Greedy path does not reach the goal yet — train more."; });
+  $("reset").addEventListener("click", () => { toggle(false); agent.reset(); showPath = null; draw(); });
+  build(); sync();
+});
+</script>
+</body>
+</html>

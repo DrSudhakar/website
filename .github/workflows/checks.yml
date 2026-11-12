@@ -1,0 +1,30 @@
+# Runs on every push / pull request: catches typos in your data files and broken code before the site goes live.
+name: Checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Data files are valid
+        run: python scripts/validate_data.py
+      - name: JavaScript tests (RL agent, heart-rate signal processing, expression scoring)
+        run: |
+          node tests/test_rl.js
+          node tests/test_rppg.js
+          node tests/test_affect.js
+      - name: Backend tests (empathy engine, EEG pipeline, HTTP endpoints)
+        run: |
+          pip install -r functions/requirements.txt pytest
+          cd functions && python -m pytest tests -q

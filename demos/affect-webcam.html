@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Affective Expression Profile · Sudhakar Mishra</title>
+  <meta name="description" content="Live facial-expression profile and valence/arousal trace from your webcam, computed locally in the browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%238a2a2b'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='Georgia'%3ESM%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/site.js"></script>
+  <script defer src="../assets/js/affect.js"></script>
+  <script defer src="../assets/js/webcam.js"></script>
+</head>
+<body>
+<main id="main" class="wrap">
+  <p><a href="../glance.html">← Work at a glance</a></p>
+  <h1 class="page-title">Affective expression profile</h1>
+  <p class="lede">Your webcam feed is turned into 52 facial-muscle “blendshape” signals, which are combined into basic-emotion scores and a valence–arousal trace over time.</p>
+  <div class="callout">🔒 <b>Private by design.</b> Everything runs on your device; no video or scores are uploaded.</div>
+  <div class="callout warn"><b>What this does and does not measure.</b> It estimates <em>facial movement</em>, which is only loosely related to what someone <em>feels</em> (context, culture and individual differences matter). Use it for learning and exploration, not for judging people.</div>
+
+  <div class="panel">
+    <div class="form-row">
+      <div style="flex-direction:row;gap:8px"><button class="btn primary" id="start">📷 Start camera</button><button class="btn" id="stop" disabled>Stop &amp; summarise</button><button class="btn" id="csv" disabled>⬇ Download CSV</button></div>
+    </div>
+    <div class="grid cols-2" style="align-items:start">
+      <div style="position:relative">
+        <video id="video" playsinline muted style="width:100%;border-radius:10px;background:#000;transform:scaleX(-1)"></video>
+        <canvas id="overlay" style="position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);background:transparent"></canvas>
+      </div>
+      <div><h3>Now</h3><div id="bars"></div><p class="note" id="status" aria-live="polite">Press start and make some expressions.</p></div>
+    </div>
+  </div>
+
+  <div class="panel"><h3>Valence &amp; arousal over time</h3>
+    <canvas id="trace" width="900" height="220" aria-label="Valence and arousal trace"></canvas>
+    <div class="legend"><span><i style="background:var(--accent)"></i>Valence (−1 unpleasant … +1 pleasant)</span><span><i style="background:var(--accent-2)"></i>Arousal (0 calm … 1 activated)</span></div></div>
+
+  <div class="panel" id="summary" style="display:none"><h3>Session profile</h3>
+    <div id="sumBars"></div><p class="note" id="sumText"></p></div>
+
+  <div class="panel"><h3>How it works</h3>
+    <p>MediaPipe Face Landmarker outputs blendshape coefficients that correspond closely to FACS action units (e.g. <code>mouthSmile</code> ≈ AU12, <code>browDown</code> ≈ AU4). Each basic emotion is scored from the action units that EMFACS associates with it (the weights are in <code>assets/js/affect.js</code> and are easy to change), then valence and arousal are the score-weighted positions of those emotions on the circumplex.</p></div>
+</main>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const $ = (id) => document.getElementById(id), video = $("video"), ov = $("overlay"), octx = ov.getContext("2d");
+  const COL = { happiness: "#d69e2e", sadness: "#3182ce", surprise: "#805ad5", anger: "#e53e3e", disgust: "#38a169", fear: "#dd6b20", neutral: "#718096" };
+  let lm, stopFrames, frames = [], t0 = 0, running = false, smooth = null;
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const bars = (el, sc) => (el.innerHTML = Affect.EMOTIONS.map((e) => `<div style="display:grid;grid-template-columns:90px 1fr 42px;gap:8px;align-items:center;margin:4px 0"><span>${e}</span><div style="background:var(--surface-2);border-radius:6px;height:14px;overflow:hidden"><div style="width:${(sc[e] * 100).toFixed(0)}%;height:100%;background:${COL[e]}"></div></div><span class="note">${(sc[e] * 100).toFixed(0)}%</span></div>`).join(""));
+  bars($("bars"), Object.fromEntries(Affect.EMOTIONS.map((e) => [e, 0])));
+
+  async function begin() {
+    $("start").disabled = true; $("status").textContent = "Loading face model (first time ~10 MB)…";
+    try { if (!lm) lm = await Webcam.landmarker({ blendshapes: true }); await Webcam.start(video); }
+    catch (e) { $("status").textContent = "Could not start: " + e.message; $("start").disabled = false; return; }
+    ov.width = video.videoWidth; ov.height = video.videoHeight; frames = []; t0 = 0; running = true; smooth = null;
+    $("stop").disabled = false; $("csv").disabled = true; $("summary").style.display = "none"; $("status").textContent = "Tracking…";
+    stopFrames = Webcam.onFrame(video, (now) => {
+      const res = lm.detectForVideo(video, now); octx.clearRect(0, 0, ov.width, ov.height);
+      if (!res.faceBlendshapes || !res.faceBlendshapes.length) { $("status").textContent = "No face detected."; return; }
+      const b = {}; res.faceBlendshapes[0].categories.forEach((c) => (b[c.categoryName] = c.score));
+      const raw = Affect.scores(b); smooth = smooth ? Object.fromEntries(Object.keys(raw).map((k) => [k, 0.6 * smooth[k] + 0.4 * raw[k]])) : raw; // light temporal smoothing
+      if (!t0) t0 = now; const t = (now - t0) / 1000; const va = Affect.valenceArousal(smooth);
+      frames.push({ t, scores: smooth, ...va });
+      bars($("bars"), smooth); $("status").textContent = `Dominant: ${Affect.dominant(smooth)} · valence ${va.valence.toFixed(2)} · arousal ${va.arousal.toFixed(2)}`;
+      if (frames.length % 3 === 0) trace();
+    });
+  }
+  function trace() {
+    const c = $("trace"), g = c.getContext("2d"), W = c.width, H = c.height; g.clearRect(0, 0, W, H);
+    const win = frames.slice(-300); if (win.length < 2) return;
+    g.strokeStyle = css("--line"); g.beginPath(); g.moveTo(0, H / 2); g.lineTo(W, H / 2); g.stroke(); // valence zero
+    const line = (key, color, map) => { g.strokeStyle = color; g.lineWidth = 2; g.beginPath(); win.forEach((f, i) => { const x = (i / (win.length - 1)) * W, y = map(f[key]); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke(); };
+    line("valence", css("--accent"), (v) => H / 2 - v * (H / 2 - 8)); line("arousal", css("--accent-2"), (a) => H - 8 - a * (H - 16));
+  }
+  function stop() {
+    if (!running) return; running = false; stopFrames && stopFrames(); Webcam.stop(video); octx.clearRect(0, 0, ov.width, ov.height);
+    $("start").disabled = false; $("stop").disabled = true; $("csv").disabled = !frames.length;
+    const p = Affect.profile(frames); if (!p) return;
+    $("summary").style.display = "block"; bars($("sumBars"), p.mean);
+    const top = Object.entries(p.share).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([e, s]) => `${e} ${(s * 100).toFixed(0)}%`).join(", ");
+    $("sumText").textContent = `${p.n} frames over ${frames[frames.length - 1].t.toFixed(0)} s. Time spent in each dominant expression: ${top}. Mean valence ${p.valence.toFixed(2)}, mean arousal ${p.arousal.toFixed(2)}.`;
+    $("status").textContent = "Stopped.";
+  }
+  $("start").addEventListener("click", begin); $("stop").addEventListener("click", stop);
+  $("csv").addEventListener("click", () => {
+    const rows = ["time_s," + Affect.EMOTIONS.join(",") + ",valence,arousal"]; frames.forEach((f) => rows.push([f.t.toFixed(3), ...Affect.EMOTIONS.map((e) => f.scores[e].toFixed(4)), f.valence.toFixed(4), f.arousal.toFixed(4)].join(",")));
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" })); a.download = "expression_profile.csv"; a.click();
+  });
+});
+</script>
+</body>
+</html>

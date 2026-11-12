@@ -1,0 +1,58 @@
+# Every week: (1) look for new open-source EEG models on Hugging Face, (2) actually try to load and run every model
+# we advertise (built-in and discovered), (3) publish the verdicts in data/eeg_models.json.
+# The EEG page only lets visitors select models whose test says "ok".
+name: Discover and test EEG models
+
+on:
+  schedule:
+    - cron: "47 3 * * 1"
+  workflow_dispatch:
+  push:
+    paths:
+      - "functions/eeg_tools/**"
+      - "scripts/test_eeg_models.py"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-updates
+  cancel-in-progress: false
+
+jobs:
+  test-models:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install (CPU-only PyTorch keeps this fast)
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy scipy scikit-learn matplotlib "mne>=1.6,<1.14" pyriemann requests pytest safetensors huggingface_hub
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install braindecode
+      - name: Unit tests for the EEG pipeline
+        working-directory: functions
+        run: python -m pytest tests/test_eeg.py -q
+      - name: Discover new EEG models on Hugging Face
+        run: python scripts/update_eeg_models.py
+      - name: Test that every model executes
+        run: python scripts/test_eeg_models.py --max-mb 250
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}     # optional; only makes downloads faster
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if git diff --cached --quiet; then
+            echo "Nothing changed."
+          else
+            git commit -m "chore: update EEG model registry and test results"
+            git pull --rebase
+            git push
+          fi

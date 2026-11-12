@@ -1,0 +1,83 @@
+{
+  "current": [
+    {
+      "code": "",
+      "title": "Fundamentals of Computer Programming",
+      "institute": "SVNIT Surat",
+      "period": "2025–present",
+      "level": "Undergraduate",
+      "desc": "Problem solving and programming fundamentals.",
+      "materials": []
+    },
+    {
+      "code": "",
+      "title": "Computer Organization & Architecture",
+      "institute": "SVNIT Surat",
+      "period": "2025–present",
+      "level": "Undergraduate",
+      "desc": "Digital logic, instruction sets, pipelining, memory hierarchy and I/O.",
+      "materials": []
+    },
+    {
+      "code": "",
+      "title": "Reinforcement Learning",
+      "institute": "SVNIT Surat",
+      "period": "2025–present",
+      "level": "Postgraduate",
+      "desc": "MDPs, dynamic programming, temporal-difference learning, policy gradients, RL for LLMs. Try the interactive agent under Work at a Glance.",
+      "materials": [
+        {
+          "label": "Interactive RL demo",
+          "url": "demos/rl-agent.html"
+        }
+      ]
+    },
+    {
+      "code": "",
+      "title": "Human–Computer Interaction",
+      "institute": "SVNIT Surat",
+      "period": "2025–present",
+      "level": "Undergraduate / Postgraduate",
+      "desc": "Interaction design, evaluation methods, physiological and affective interfaces.",
+      "materials": []
+    },
+    {
+      "code": "",
+      "title": "Affective Computing",
+      "institute": "SVNIT Surat",
+      "period": "2025–present",
+      "level": "Postgraduate",
+      "desc": "Emotion theories, sensing (EEG, cardiac, facial), modelling and applications.",
+      "materials": [
+        {
+          "label": "Webcam affect demo",
+          "url": "demos/affect-webcam.html"
+        },
+        {
+          "label": "EEG lab",
+          "url": "demos/eeg-lab.html"
+        }
+      ]
+    }
+  ],
+  "past": [
+    {
+      "title": "EEG Methods module (basics of EEG, preprocessing, ERP, connectivity, ICA)",
+      "institute": "IIT Kanpur",
+      "period": "Jan–Feb 2024 and Jan–Feb 2025",
+      "role": "Instructor"
+    },
+    {
+      "title": "Cognition and Cognitive Process Modeling",
+      "institute": "IIIT Allahabad",
+      "period": "2014–2020",
+      "role": "Teaching assistant"
+    },
+    {
+      "title": "Image and Vision Processing",
+      "institute": "IIIT Allahabad",
+      "period": "2014–2020",
+      "role": "Teaching assistant"
+    }
+  ]
+}

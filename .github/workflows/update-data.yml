@@ -1,0 +1,50 @@
+# Every Monday (and whenever you press "Run workflow") this refreshes:
+#   - your publications and citation counts   (Google Scholar + OpenAlex)
+#   - the latest videos on your YouTube channel
+#   - the list of open-source LLMs offered in the empathy checker
+# and commits the changed files in data/. GitHub Pages then republishes the site automatically.
+name: Update publications, citations, videos and LLM list
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"      # Mondays 03:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-updates
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Publications and citations
+        run: python scripts/update_publications.py
+        continue-on-error: true      # Google Scholar sometimes blocks cloud servers; the old numbers are kept
+      - name: YouTube videos
+        run: python scripts/update_youtube.py
+        continue-on-error: true
+      - name: Open-source LLM list
+        run: python scripts/update_llm_models.py
+        continue-on-error: true
+      - name: Validate data files
+        run: python scripts/validate_data.py
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if git diff --cached --quiet; then
+            echo "Nothing changed."
+          else
+            git commit -m "chore: refresh publications, citations, videos and model list"
+            git pull --rebase
+            git push
+          fi
