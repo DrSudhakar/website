@@ -68,7 +68,7 @@
   // ------------------------------------------------------------------ account bar
   function draw() {
     if (!bar) return;
-    if (!configured()) { bar.className = "callout warn"; bar.innerHTML = "🔒 <b>Sign-in not set up yet.</b> Fill in <code>ACCOUNT_URL</code> and <code>FIREBASE</code> in <code>assets/js/config.js</code> (GUIDE.md → Part 5B)."; return; }
+    if (!configured()) { bar.className = "callout warn"; bar.innerHTML = "🔒 <b>Sign-in not set up yet.</b> This page is under development."; return; }
     const s = status || {};
     bar.className = "callout access-bar";
     if (s.error && !("signed_in" in s)) { bar.className = "callout bad"; bar.textContent = s.error; return; }
