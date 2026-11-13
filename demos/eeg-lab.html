@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/style.css">
   <script defer src="../assets/js/config.js"></script>
+  <script defer src="../assets/js/access.js"></script>
   <script defer src="../assets/js/site.js"></script>
   <script defer src="../assets/js/charts.js"></script>
 </head>
@@ -19,6 +20,7 @@
   <h1 class="page-title">EEG microstate &amp; affect lab</h1>
   <p class="lede">Upload EEG recordings from one or more tasks. The service preprocesses them automatically, (1) builds <b>microstates</b> and compares them between tasks, and (2) runs <b>affective computing</b> analyses with open-source models you choose.</p>
   <div id="svc" class="callout"></div>
+  <div id="access" class="callout"></div>
 
   <div class="panel">
     <h3>1 · Data</h3>
@@ -61,6 +63,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!cfg.EEG_URL) { svc.className = "callout warn"; svc.innerHTML = "⚙️ <b>Backend not connected yet.</b> This page needs the Firebase function deployed — see <code>GUIDE.md</code> → Part 5, then paste the URL into <code>assets/js/config.js</code>."; $("run").disabled = true; $("demo").disabled = true; }
   else { svc.textContent = "Checking backend…"; fetch(cfg.STATUS_URL).then((r) => r.json()).then(() => { svc.className = "callout"; svc.textContent = "✅ Backend online."; }).catch(() => { svc.className = "callout bad"; svc.textContent = "Backend unreachable — check the URLs in config.js and ALLOWED_ORIGINS in functions/.env."; }); }
 
+  Access.mount($("access"));
+
   // ---------- tasks
   let nTask = 0;
   function addTask(name) {
@@ -87,6 +91,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ---------- run
   async function run(demo) {
+    if (!Access.user) { await Access.signIn(); if (!Access.user) return; }
     const fd = new FormData(), names = [];
     if (demo) fd.append("demo", "1");
     else {
@@ -99,7 +104,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     fd.append("options", JSON.stringify({ k: $("k").value === "auto" ? "auto" : +$("k").value, notch: +$("notch").value || null, l_freq: +$("lf").value, h_freq: +$("hf").value, ica: $("ica").checked, per_task_maps: $("ptm").checked, affect: $("doAffect").checked, models }));
     $("run").disabled = $("demo").disabled = true; $("out").innerHTML = ""; $("runmsg").innerHTML = '<span class="spinner"></span>Analysing… (up to ~2 minutes; the first request after a quiet period is slower)';
     try {
-      const r = await fetch(cfg.EEG_URL, { method: "POST", body: fd }); const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status);
+      const j = await Access.call(cfg.EEG_URL, { method: "POST", body: fd }, true);
       render(j, demo); $("runmsg").textContent = `Done in ${j.seconds} s.`;
     } catch (e) { $("runmsg").textContent = "❌ " + e.message; }
     $("run").disabled = $("demo").disabled = !cfg.EEG_URL ? true : false;

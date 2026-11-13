@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Approve payments · Sudhakar Mishra</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%238a2a2b'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='Georgia'%3ESM%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script defer src="assets/js/config.js"></script>
+  <script defer src="assets/js/access.js"></script>
+  <script defer src="assets/js/site.js"></script>
+</head>
+<body>
+<main id="main" class="wrap">
+  <h1 class="page-title">Approve payments</h1>
+  <p class="lede">Visitors who pay for minutes appear here. Check each UPI transaction ID in your bank or UPI app, then approve it (minutes are added at once) or reject it. Only the e-mail addresses in <code>ADMIN_EMAILS</code> (functions/.env) can use this page.</p>
+  <div id="access" class="callout"></div>
+  <div id="pool"></div>
+  <div class="panel"><h3>Waiting for confirmation</h3><div id="list"><p class="note">Sign in with your admin Google account.</p></div>
+    <p><button class="btn small" id="reload">↻ Reload</button> <span class="note" id="msg" aria-live="polite"></span></p></div>
+</main>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const $ = (id) => document.getElementById(id), esc = (s) => Site.esc(s);
+  const when = (t) => new Date(t * 1000).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+  Access.mount($("access"));
+
+  async function load() {
+    const st = Access.status;
+    if (!Access.user) { $("list").innerHTML = '<p class="note">Sign in with your admin Google account.</p>'; $("pool").innerHTML = ""; return; }
+    if (!st || !st.is_admin) { $("list").innerHTML = '<p class="callout bad">This Google account is not an admin. Add its e-mail to <code>ADMIN_EMAILS</code> in <code>functions/.env</code> and deploy again.</p>'; return; }
+    $("msg").innerHTML = '<span class="spinner"></span>Loading…';
+    try {
+      const d = await Access.account({ action: "admin_list" });
+      const used = Math.round(d.pool_used_s / 60), pct = Math.min(100, Math.round((100 * d.pool_used_s) / 60 / Math.max(1, d.pool_minutes)));
+      $("pool").innerHTML = `<div class="callout">Free pool for ${esc(d.month)}: <b>${used} of ${d.pool_minutes} minutes used</b> (${pct}%). It resets on ${esc(d.free_resets_on)}.</div>`;
+      $("list").innerHTML = d.pending.length ? `<div class="table-wrap"><table class="admin-table"><thead><tr><th>Submitted</th><th>User</th><th>Amount</th><th>UPI ref / UTR</th><th>Minutes to add</th><th></th></tr></thead><tbody>${d.pending.map((r) => `
+        <tr data-id="${esc(r.id)}"><td>${esc(when(r.created))}</td><td>${esc(r.email || r.uid)}</td><td>₹${esc(r.amount_inr)}</td><td><code>${esc(r.upi_ref)}</code></td>
+          <td><input type="number" class="mins" value="${esc(r.minutes)}" min="1" style="width:80px"></td>
+          <td style="white-space:nowrap"><button class="btn small primary" data-act="approve">Approve</button> <button class="btn small" data-act="reject">Reject</button></td></tr>`).join("")}</tbody></table></div>`
+        : '<p class="note">No payments are waiting. 🎉</p>';
+      $("msg").textContent = "";
+    } catch (e) { $("msg").textContent = "❌ " + e.message; }
+  }
+
+  $("list").addEventListener("click", async (e) => {
+    const act = e.target.dataset.act; if (!act) return;
+    const row = e.target.closest("tr"), id = row.dataset.id, minutes = row.querySelector(".mins").value;
+    if (act === "reject" && !confirm("Reject this payment request? The user gets no minutes.")) return;
+    row.querySelectorAll("button").forEach((b) => (b.disabled = true));
+    try { const r = await Access.account({ action: act, id, minutes }); $("msg").textContent = act === "approve" ? `✅ Added ${r.credited_minutes} minutes.` : "Rejected."; }
+    catch (err) { $("msg").textContent = "❌ " + err.message; }
+    load();
+  });
+  $("reload").onclick = load;
+  Access.onChange(() => load());
+});
+</script>
+</body>
+</html>

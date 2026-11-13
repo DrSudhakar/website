@@ -187,3 +187,15 @@ canvas { max-width: 100%; border-radius: 8px; background: var(--surface-2); }
 .site-footer a { color: var(--muted); }
 
 @media print { .site-header, .site-footer, .nav-toggle { display: none; } body { background: #fff; } }
+
+/* ---------- sign-in bar and payment box (assets/js/access.js) ---------- */
+.access-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.access-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.access-stats { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 6px; }
+.pay-dialog { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--text); padding: 20px; width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto; box-shadow: var(--shadow); }
+.pay-dialog::backdrop { background: rgba(10, 12, 18, .55); }
+.pay-dialog input[type="text"], .pay-dialog input[type="number"] { display: block; margin-top: 4px; max-width: 100%; }
+.pay-steps { padding-left: 1.2em; }
+.pay-steps li { margin-bottom: 12px; }
+.pay-qr img { width: 200px; max-width: 100%; height: auto; margin: 8px 0; border-radius: 8px; background: #fff; padding: 6px; }
+.admin-table td, .admin-table th { vertical-align: middle; }

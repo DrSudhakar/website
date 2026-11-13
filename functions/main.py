@@ -1,10 +1,12 @@
 """Firebase Cloud Functions (2nd gen, Python) for the website's heavy demos.
 
   GET  api_status    → which models/services are ready
-  POST empathy_run   → LLM empathy benchmark          (functions/empathy.py)
-  POST eeg_analyze   → EEG preprocessing + microstates + affect decoding (functions/eeg_tools)
+  GET  account       → the signed-in user's minutes;  POST account → payment requests and admin actions (billing.py)
+  POST empathy_run   → LLM empathy benchmark          (functions/empathy.py)       — sign-in + minutes required
+  POST eeg_analyze   → EEG preprocessing + microstates + affect decoding (eeg_tools) — sign-in + minutes required
 
 Security model (read this before deploying):
+  * empathy_run and eeg_analyze need a Firebase sign-in token and remaining free or paid minutes (billing.py).
   * CORS only allows the origins listed in ALLOWED_ORIGINS (functions/.env).
   * API keys typed by visitors are used for that one request and are never stored or logged.
   * Your own Hugging Face token (secret HF_TOKEN) is only used for open-model calls; usage is capped by
@@ -59,6 +61,81 @@ def _json(obj, status=200):
     return https_fn.Response(json.dumps(obj, default=conv), status=status, mimetype="application/json")
 
 
+_STORE = None
+
+
+def _store():
+    global _STORE
+    if _STORE is None:
+        import billing
+        _STORE = billing.FirestoreStore()
+    return _STORE
+
+
+def _verify(token: str) -> tuple[str, str]:
+    from firebase_admin import auth
+    d = auth.verify_id_token(token)
+    return d["uid"], (d.get("email") or "").lower() if d.get("email_verified") else ""
+
+
+def _user(req):
+    h = req.headers.get("Authorization", "")
+    if not h.startswith("Bearer "):
+        return None
+    try:
+        return _verify(h[7:].strip())
+    except Exception:
+        return None
+
+
+def _metered(req, work):
+    """Run `work()` only for a signed-in user with minutes left, then charge the time it took."""
+    import billing
+    user = _user(req)
+    if not user:
+        return _json({"error": "Please sign in to use this tool.", "code": "signin"}, 401)
+    try:
+        billing.begin_run(_store(), *user)
+    except billing.Denied as d:
+        return _json({"error": d.message, "code": d.code, "account": d.status}, d.http)
+    t0 = time.time()
+    try:
+        return work()
+    finally:
+        try:
+            billing.end_run(_store(), user[0], time.time() - t0)
+        except Exception as e:   # never lose the user's result because of a billing hiccup
+            print(f"billing.end_run failed for {user[0]}: {e!r}")
+
+
+@https_fn.on_request(cors=CORS, memory=options.MemoryOption.MB_256, max_instances=3)
+def account(req: https_fn.Request) -> https_fn.Response:
+    import billing
+    user = _user(req)
+    if req.method == "GET":
+        return _json(billing.status(_store(), *(user or (None, None))))
+    if req.method != "POST":
+        return _json({"error": "GET or POST required"}, 405)
+    if not user:
+        return _json({"error": "Please sign in first.", "code": "signin"}, 401)
+    if _rate_limited(req, "account", 60):
+        return _json({"error": "Too many requests. Please try again later."}, 429)
+    body = req.get_json(silent=True) or {}
+    action = body.get("action")
+    try:
+        if action == "request":
+            return _json(billing.request_payment(_store(), *user, body.get("minutes"), body.get("upi_ref")))
+        if action in ("admin_list", "approve", "reject"):
+            if not billing.is_admin(user[1]):
+                return _json({"error": "Only the site owner can do this."}, 403)
+            if action == "admin_list":
+                return _json(billing.admin_list(_store()))
+            return _json(billing.decide(_store(), str(body.get("id", "")), action == "approve", user[1], body.get("minutes")))
+    except billing.Denied as d:
+        return _json({"error": d.message, "code": d.code}, d.http)
+    return _json({"error": "unknown action"}, 400)
+
+
 @https_fn.on_request(cors=CORS, memory=options.MemoryOption.MB_256, max_instances=2)
 def api_status(req: https_fn.Request) -> https_fn.Response:
     from eeg_tools import registry
@@ -79,25 +156,34 @@ def empathy_run(req: https_fn.Request) -> https_fn.Response:
         judge = {"provider": "hf", "model": DEFAULT_JUDGE}
     elif judge is False:
         judge = None
-    try:
-        res = empathy.run_benchmark(
-            models=list(body.get("models", []))[:20], scenario_ids=body.get("scenarios"), n_scenarios=int(body.get("n_scenarios", 6)),
-            judge_cfg=judge, server_keys={"hf": os.environ.get("HF_TOKEN", "")})
-    except ValueError as e:
-        return _json({"error": str(e)}, 400)
-    return _json(res)
+    if not body.get("models"):
+        return _json({"error": "Select at least one model."}, 400)
+
+    def work():
+        try:
+            res = empathy.run_benchmark(
+                models=list(body.get("models", []))[:20], scenario_ids=body.get("scenarios"), n_scenarios=int(body.get("n_scenarios", 6)),
+                judge_cfg=judge, server_keys={"hf": os.environ.get("HF_TOKEN", "")})
+        except ValueError as e:
+            return _json({"error": str(e)}, 400)
+        return _json(res)
+    return _metered(req, work)
 
 
 @https_fn.on_request(cors=CORS, timeout_sec=300, memory=options.MemoryOption.GB_4, cpu=2, max_instances=2)
 def eeg_analyze(req: https_fn.Request) -> https_fn.Response:
-    from eeg_tools import run
-    from eeg_tools.io import EEGReadError, MAX_BYTES
     if req.method != "POST":
         return _json({"error": "POST required"}, 405)
     if _rate_limited(req, "eeg", 10):
         return _json({"error": "Rate limit reached (10 analyses/hour). Please try again later."}, 429)
     if (req.content_length or 0) > 31 * 1024 * 1024:
         return _json({"error": "Upload too large for the web service (31 MB total). Use the command-line tool for big files."}, 413)
+    return _metered(req, lambda: _eeg_work(req))
+
+
+def _eeg_work(req):
+    from eeg_tools import run
+    from eeg_tools.io import EEGReadError, MAX_BYTES
     try:
         opts = json.loads(req.form.get("options", "{}"))
         opts = {k: v for k, v in opts.items() if k in {"k", "microstates", "affect", "models", "ica", "notch", "l_freq", "h_freq", "per_task_maps"}}

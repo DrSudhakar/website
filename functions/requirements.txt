@@ -1,5 +1,6 @@
 firebase-functions>=0.4.2
 firebase-admin>=6.5.0
+google-cloud-firestore>=2.16
 requests>=2.31
 numpy>=1.26
 scipy>=1.11
