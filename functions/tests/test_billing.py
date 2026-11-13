@@ -70,7 +70,7 @@ def test_pool_exhausted_blocks_free_use_for_everyone_until_next_month():
 def test_paid_minutes_work_after_pool_is_empty_and_are_charged():
     st = MemoryStore()
     run(st, "a", 300, T0); run(st, "b", 300, T0 + 10)
-    r = billing.request_payment(st, "c", "c@x.com", 20, "UTR 4312 3456 7890", T0 + 20)
+    r = billing.request_payment(st, "c", "c@x.com", 20, "4312 3456 7890", T0 + 20)
     assert r["amount_inr"] == 20
     assert billing.status(st, "c", "c@x.com", T0 + 21)["pending"][0]["upi_ref"] == "431234567890"
     billing.decide(st, r["id"], True, "owner@example.com", None, T0 + 30)

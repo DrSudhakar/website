@@ -78,7 +78,7 @@
     const social = site.social || {};
     const foot = el(`<footer class="site-footer"><div class="wrap">
         <div>© ${new Date().getFullYear()} ${esc(site.name)} · ${esc(site.institute || "")}</div>
-        <div>${[["scholar", "Google Scholar"], ["orcid", "ORCID"], ["linkedin", "LinkedIn"], ["x", "X"], ["youtube", "YouTube"], ["github", "GitHub"]]
+        <div>${[["scholar", "Google Scholar"], ["orcid", "ORCID"], ["researchgate", "ResearchGate"], ["linkedin", "LinkedIn"], ["x", "X"], ["youtube", "YouTube"], ["github", "GitHub"]]
           .filter(([k]) => social[k]).map(([k, l]) => `<a href="${esc(safeUrl(social[k]))}" rel="me noopener" target="_blank">${l}</a>`).join(" · ")}</div>
       </div></footer>`);
     document.body.append(foot);
@@ -111,7 +111,7 @@
         <p class="lede" style="margin-bottom:0">${esc(s.tagline)}</p>
         <div class="links">
           ${s.email ? `<a class="btn primary" href="mailto:${esc(s.email)}">✉ Email</a>` : ""}
-          ${btn("scholar", "Google Scholar")}${btn("orcid", "ORCID")}${btn("linkedin", "LinkedIn")}${btn("x", "X / Twitter")}${btn("youtube", "YouTube")}${btn("github", "GitHub")}
+          ${btn("scholar", "Google Scholar")}${btn("orcid", "ORCID")}${btn("researchgate", "ResearchGate")}${btn("linkedin", "LinkedIn")}${btn("x", "X / Twitter")}${btn("youtube", "YouTube")}${btn("github", "GitHub")}
         </div>
       </div></div>`;
   };
@@ -242,14 +242,15 @@
 
   R.vacancies = async (node) => {
     const [v, s] = await Promise.all([loadJSON("data/vacancies.json", { openings: [] }), loadJSON("data/site.json", {})]);
-    const mail = (subject) => (s.email ? `mailto:${esc(s.email)}?subject=${encodeURIComponent(subject)}` : esc(safeUrl((s.social || {}).linkedin || (s.social || {}).x || "")) || "#");
+    const mail = (subject) => `mailto:${esc(s.email || "")}?subject=${encodeURIComponent(subject)}`;
+    const gmail = (subject) => `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(s.email || "")}&su=${encodeURIComponent(subject)}`;
     node.innerHTML = `${v.intro ? `<p class="lede">${esc(v.intro)}</p>` : ""}` + v.openings.map((o) => `<section class="panel" id="${esc(o.id)}">
         <div class="toolbar" style="justify-content:space-between"><h2 style="margin:0">${esc(o.title)}</h2>
           <span class="chip ${o.status === "open" ? "ok" : ""}">${o.status === "open" ? "Open" : "Closed"}</span></div>
         <p class="note">${esc(o.type)}${o.when ? " · " + esc(o.when) : ""}${o.deadline ? " · Deadline: " + fmtDate(o.deadline) : ""}</p>
         <div class="grid cols-2"><div><h3>Topics</h3><ul>${(o.topics || []).map((t) => `<li>${esc(t)}</li>`).join("")}</ul></div>
         <div><h3>Who should apply</h3><ul>${(o.requirements || []).map((t) => `<li>${esc(t)}</li>`).join("")}</ul></div></div>
-        ${o.status === "open" ? `<a class="btn primary" href="${mail("Application: " + o.title)}">Apply / enquire</a>` : ""}</section>`).join("");
+        ${o.status === "open" && s.email ? `<a class="btn primary" href="${mail("Application: " + o.title)}">Apply / enquire</a> <a class="btn" href="${gmail("Application: " + o.title)}" target="_blank" rel="noopener">Open in Gmail</a> <span class="note">${esc(s.email)}</span>` : ""}</section>`).join("");
   };
 
   function videoCard(v) {
@@ -287,9 +288,10 @@
   R.contact = async (node) => {
     const s = await loadJSON("data/site.json", {});
     const social = s.social || {};
-    const rows = [["scholar", "Google Scholar"], ["orcid", "ORCID"], ["linkedin", "LinkedIn"], ["x", "X"], ["youtube", "YouTube"], ["github", "GitHub"]].filter(([k]) => social[k]);
-    node.innerHTML = `<p>${esc(s.institute)}<br>${esc(s.department)}${s.location ? "<br>" + esc(s.location) : ""}</p>
-      <ul>${s.email ? `<li>Email: <a href="mailto:${esc(s.email)}">${esc(s.email)}</a></li>` : ""}${rows.map(([k, l]) => `<li>${l}: <a href="${esc(safeUrl(social[k]))}" target="_blank" rel="me noopener">${esc(social[k].replace(/^https?:\/\//, ""))}</a></li>`).join("")}</ul>`;
+    const rows = [["scholar", "Google Scholar"], ["orcid", "ORCID"], ["researchgate", "ResearchGate"], ["linkedin", "LinkedIn"], ["x", "X"], ["youtube", "YouTube"], ["github", "GitHub"]].filter(([k]) => social[k]);
+    const tel = (s.phone || "").replace(/[^\d+]/g, "");
+    node.innerHTML = `<p>${s.office_address ? esc(s.office_address) : esc(s.institute) + "<br>" + esc(s.department) + (s.location ? "<br>" + esc(s.location) : "")}</p>
+      <ul>${s.email ? `<li>Email: <a href="mailto:${esc(s.email)}">${esc(s.email)}</a></li>` : ""}${s.phone ? `<li>Phone: <a href="tel:${esc(tel)}">${esc(s.phone)}</a></li>` : ""}${rows.map(([k, l]) => `<li>${l}: <a href="${esc(safeUrl(social[k]))}" target="_blank" rel="me noopener">${esc(social[k].replace(/^https?:\/\//, ""))}</a></li>`).join("")}</ul>`;
   };
 
   R.cv = async (node) => {

@@ -7,7 +7,7 @@
   "lab": "Human-Centered Intelligent Artifacts (HCIA) Lab",
   "tagline": "Affective neuroscience, affective computing and reinforcement learning — building AI that understands human emotion.",
   "photo": "assets/img/profile.jpg",
-  "email": "",
+  "email": "sudhakarm@aid.svnit.ac.in",
   "cv_file": "assets/Sudhakar_Mishra_CV.pdf",
   "bio": [
     "I am an Assistant Professor in the Department of Artificial Intelligence at SVNIT Surat, with an interdisciplinary background spanning affective neuroscience, cognitive science and AI. I hold a Ph.D. in Affective Neuroscience and an M.Tech. in Human–Computer Interaction from IIIT Allahabad, and I have worked extensively with EEG, fMRI and computational models of emotion.",
@@ -27,7 +27,8 @@
   "social": {
     "scholar": "https://scholar.google.com/citations?user=raA5Dc8AAAAJ&hl=en",
     "orcid": "https://orcid.org/0000-0002-3748-7153",
-    "linkedin": "",
+    "researchgate": "https://www.researchgate.net/profile/Sudhakar-Mishra?ev=hdr_xprf",
+    "linkedin": "https://www.linkedin.com/in/sudhakar-mishra-63a16336/",
     "x": "https://x.com/SUDHAKA66356868",
     "youtube": "https://www.youtube.com/@HCIA26",
     "github": ""
@@ -39,5 +40,7 @@
     "youtube_channel_id": "UCtt6Bz2VncqK2fZ3hzYei-g",
     "youtube_handle": "HCIA26",
     "auto_add_min_year": 2014
-  }
+  },
+  "phone": "+91-7318317901",
+  "office_address": "DoAI012, Department of Artificial Intelligence, SVNIT, Surat, India, 395007"
 }

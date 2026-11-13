@@ -9,6 +9,7 @@ This guide assumes you have **never** built a website. Follow the parts in order
 3. [Fill in the things only you know](#part-3--fill-in-the-things-only-you-know)
 4. [Day-to-day: add a PhD member, project, grant, publication, news, citations](#part-4--day-to-day-adding-information)
 5. [Turn on the heavy demos with Firebase (LLM empathy + EEG)](#part-5--turn-on-the-heavy-demos-with-firebase)
+   * 5B. [Sign-in, 5 free minutes and paid minutes (₹1/min)](#part-5b--sign-in-free-minutes-and-paid-minutes)
 6. [Lecture and talk videos, and your YouTube channel](#part-6--lecture-and-talk-videos-and-your-youtube-channel)
 7. [Add a brand-new page (with a template)](#part-7--add-a-brand-new-page)
 8. [Automatic updates — how they work and how to fix them](#part-8--automatic-updates)
@@ -214,7 +215,7 @@ cd "/Users/vasusud/Documents/Personal Docs/For Website/sudhakar-site"
 cp functions/.env.example functions/.env
 ```
    * In `.firebaserc` replace `YOUR-FIREBASE-PROJECT-ID` with your Project ID.
-   * In `functions/.env` set `ALLOWED_ORIGINS=https://YOUR-USERNAME.github.io` (no slash at the end; add `,http://localhost:8123` for testing). Only these sites may call your backend.
+   * In `functions/.env` set `ALLOWED_ORIGINS=https://drsudhakar.github.io` (only the address, **without** `/website` and with no slash at the end; add `,http://localhost:8123` for testing). Only these sites may call your backend.
 4. **Create the Python environment** Firebase needs:
 ```bash
 cd functions
@@ -230,15 +231,15 @@ firebase functions:secrets:set HF_TOKEN
    (paste the token when asked). Hugging Face bills inference to *your* HF account (they give some free monthly credit) — see "Costs" below.
 6. **Deploy:**
 ```bash
-firebase deploy --only functions
+firebase deploy --only functions,firestore:rules
 ```
-   After a few minutes it prints three URLs like `https://empathy-run-xxxx-el.a.run.app`. Copy them into `assets/js/config.js`:
+   (If Terminal says `firebase: command not found`, type `npx firebase-tools` instead of `firebase` in every command.)
+   Do **Part 5B steps 1–3 first** (Firestore and sign-in must exist before this deploy). After a few minutes it prints four URLs like `https://empathy-run-xxxx-el.a.run.app`. Copy them into `assets/js/config.js`:
 ```js
-window.SITE_CONFIG = {
   STATUS_URL:  "https://api-status-xxxx-el.a.run.app",
   EMPATHY_URL: "https://empathy-run-xxxx-el.a.run.app",
   EEG_URL:     "https://eeg-analyze-xxxx-el.a.run.app",
-};
+  ACCOUNT_URL: "https://account-xxxx-el.a.run.app",
 ```
    Then `git add . && git commit -m "Connect backend" && git push`. Open *Work at a glance → LLM empathy checker*: the banner should say "✅ Backend online".
 7. **Budget alert (do not skip):** <https://console.cloud.google.com/billing> → *Budgets & alerts* → *Create budget* → e.g. ₹500 / $5 per month with email alerts at 50 % and 100 %.
@@ -278,6 +279,55 @@ python -m eeg_tools.cli --task "Calm=calm.edf" --task "Fear=fear.edf" --k 4 \
 ```
 
 **Add your own model:** add one entry to `MODELS` in `functions/eeg_tools/registry.py`, run `python scripts/test_eeg_models.py`; if it says *ok* it shows on the site next deploy.
+
+---
+
+## Part 5B — Sign-in, free minutes and paid minutes
+
+The **LLM empathy checker** and the **EEG lab** are open only to signed-in visitors (Google sign-in):
+
+* Every user gets **5 free minutes per month**.
+* All free use on the site shares one **monthly pool** (`FREE_POOL_MINUTES`, default 900 minutes = 15 hours, kept below Google's free tier). When the pool is used up, nobody gets free minutes; visitors see *"This month's quota of free use on this website has been used up. Free minutes return on 1 <next month>."*
+* After the free minutes, a box asks *"Continue for ₹1 per minute?"*. The visitor picks the number of minutes, pays to **your UPI QR code**, and types the UPI transaction ID (UTR).
+* You confirm the payment on **`admin.html`** and the minutes are added to their balance.
+* Nobody can use more than **120 minutes a day**, and each person can run one analysis at a time.
+* The time each run takes on the server is what counts. Free minutes are used first.
+
+**Where things are:** the sign-in bar and the payment box appear **at the top of the two demo pages**, and only after the steps below are done. Until then the bar says "Sign-in not set up yet". The approval page is **https://drsudhakar.github.io/website/admin.html**. It is deliberately **not in the menu**: only you need it. Bookmark it.
+
+### Steps (once)
+1. **Create the database:** Firebase console → your project → *Build → Firestore Database* → *Create database* → *Production mode* → location **asia-south1 (Mumbai)**.
+2. **Turn on Google sign-in:** *Build → Authentication* → *Get started* → *Sign-in method* → **Google** → *Enable* → choose your support e-mail → *Save*. Then go to *Settings → Authorized domains* → *Add domain* → `drsudhakar.github.io`.
+3. **Register the website:** gear icon → *Project settings* → *Your apps* → the **`</>` (Web)** button → nickname "website" → *Register app* (no hosting). It shows a `firebaseConfig` block. Copy four values into `assets/js/config.js`:
+```js
+  FIREBASE: {
+    apiKey: "AIza…",
+    authDomain: "your-project-id.firebaseapp.com",
+    projectId: "your-project-id",
+    appId: "1:1234…:web:abcd…",
+  },
+```
+   These values are not secrets; every website that uses Firebase sign-in shows them.
+4. **Your QR code:** save the QR image from your UPI app (PhonePe, Google Pay, Paytm, BHIM) as **`assets/img/upi-qr.png`**. Optionally put your UPI ID in `PAYMENT.UPI_ID` in `config.js`; phone users then get a "Pay with a UPI app" button.
+5. **Make yourself the admin:** in `functions/.env` set `ADMIN_EMAILS=` your Google e-mail. The other numbers (free minutes, pool, price, daily cap) are in the same file.
+6. **Deploy and publish:** run `firebase deploy --only functions,firestore:rules` (Part 5, step 6), paste the four URLs into `config.js`, then:
+```bash
+git add . && git commit -m "Turn on sign-in and paid minutes" && git push
+```
+
+### Approving a payment (each time)
+1. Open `admin.html` and sign in with your admin Google account. Use the *Approve payments* button in the bar, or your bookmark.
+2. For each row, find the **UPI ref / UTR** in your bank or UPI app. If the amount arrived, click **Approve**. You can change "Minutes to add" first if they paid a different amount. If nothing arrived, click **Reject**.
+3. The visitor's balance updates the next time their page loads.
+
+### Changing prices or limits
+Edit `functions/.env` (`PRICE_PER_MINUTE_INR`, `FREE_MINUTES_PER_USER`, `FREE_POOL_MINUTES`, `DAILY_CAP_MINUTES`) and run `firebase deploy --only functions` again.
+
+### Good to know
+* A plain QR code cannot tell the website that money arrived, so **you approve each payment yourself**. For instant automatic unlocking you would need a payment gateway such as Razorpay.
+* Free minutes reset on the 1st of each month (India time). Google's own free tier resets with its billing month, so check *Billing → Reports* now and then and keep the budget alert from Part 5.
+* Someone could use several Google accounts to get more free minutes. The shared monthly pool caps what that can cost you.
+* Usage is stored in Firestore (`billing_users`, `billing_pool`, `billing_requests`). Browsers cannot read or write it (`firestore.rules`); only your functions can.
 
 ---
 
