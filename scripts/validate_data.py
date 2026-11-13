@@ -46,6 +46,10 @@ def img_ok(name, path, label):
 site = get("site.json", dict) or {}
 need("site.json", site, ["name", "title", "institute", "photo"], "site")
 img_ok("site.json", site.get("photo"), "photo")
+exp = site.get("experiment") or {}
+if exp.get("active"):
+    need("site.json", exp, ["title", "url"], "experiment")
+    url_ok("site.json", exp.get("url"), "experiment url")
 if not site.get("email"):
     warn("site.json: 'email' is empty — add it so the Email button and Vacancies 'Apply' buttons appear")
 if not site.get("social", {}).get("linkedin"):

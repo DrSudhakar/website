@@ -42,5 +42,11 @@
     "auto_add_min_year": 2014
   },
   "phone": "+91-7318317901",
-  "office_address": "DoAI012, Department of Artificial Intelligence, SVNIT, Surat, India, 395007"
+  "office_address": "DoAI012, Department of Artificial Intelligence, SVNIT, Surat, India, 395007",
+  "experiment": {
+    "active": true,
+    "title": "Participate in the Ongoing Experiment",
+    "text": "Help our research: take part in the HCIA lab's running online experiment.",
+    "url": "https://drsudhakar.github.io/sama-remote-arm/"
+  }
 }

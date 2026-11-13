@@ -199,3 +199,14 @@ canvas { max-width: 100%; border-radius: 8px; background: var(--surface-2); }
 .pay-steps li { margin-bottom: 12px; }
 .pay-qr img { width: 200px; max-width: 100%; height: auto; margin: 8px 0; border-radius: 8px; background: #fff; padding: 6px; }
 .admin-table td, .admin-table th { vertical-align: middle; }
+
+/* ---------- "Participate in the ongoing experiment" banner (Lab page) ---------- */
+.experiment-banner { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 0 0 22px; padding: 14px 18px; border-radius: var(--radius); border: 2px solid var(--accent); background: var(--accent-soft); color: var(--text); text-decoration: none; animation: experiment-pulse 1.8s ease-in-out infinite; }
+.experiment-banner:hover { background: var(--surface); }
+.experiment-banner b { display: block; font-size: 1.05rem; color: var(--accent); }
+.experiment-text { display: block; font-size: .9rem; color: var(--muted); }
+.experiment-go { margin-left: auto; font-weight: 600; color: #fff; background: var(--accent); padding: 6px 14px; border-radius: 9px; white-space: nowrap; }
+.experiment-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); flex: none; animation: experiment-blink 1.8s ease-in-out infinite; }
+@keyframes experiment-pulse { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 50% { box-shadow: 0 0 0 6px var(--accent-soft), 0 0 18px var(--accent); } }
+@keyframes experiment-blink { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .experiment-banner, .experiment-dot { animation: none; } }

@@ -229,6 +229,15 @@
       ${work ? `<div class="note"><b>Work:</b><ul style="margin:4px 0 6px;padding-left:18px">${work}</ul></div>` : ""}
       <div class="links" style="margin-top:6px">${links}</div></div></div>`;
   }
+  R.experiment = async (node) => {
+    const e = (await loadJSON("data/site.json", {})).experiment || {};
+    if (!e.active || !e.url) { node.remove(); return; }
+    node.innerHTML = `<a class="experiment-banner" href="${esc(safeUrl(e.url))}" target="_blank" rel="noopener">
+      <span class="experiment-dot" aria-hidden="true"></span>
+      <span><b>${esc(e.title || "Participate in the ongoing experiment")}</b>${e.text ? `<span class="experiment-text">${esc(e.text)}</span>` : ""}</span>
+      <span class="experiment-go">Join now →</span></a>`;
+  };
+
   R.members = async (node) => {
     const m = await loadJSON("data/members.json", { current: [], alumni: [] });
     // group current members by role so PhD students, interns etc. get their own headings
