@@ -1,0 +1,2 @@
+<b>Backend not connected yet.</b> This page needs the Firebase function deployed — see <code>GUIDE.md</code> → Part 5, then paste the URL into <code>assets/js/config.js</code>.
+</b> This page needs the Firebase function deployed — see <code>GUIDE.md</code> → Part 5, then paste the URL into <code>assets/js/config.js</code>
