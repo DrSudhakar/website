@@ -60,7 +60,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const $ = (id) => document.getElementById(id), esc = (s) => Site.esc(s), cfg = window.SITE_CONFIG || {};
   const svc = $("svc");
-  if (!cfg.EEG_URL) { svc.className = "callout warn"; svc.innerHTML = "⚙️ <b>Backend not connected yet.</b> This page needs the Firebase function deployed — see <code>GUIDE.md</code> → Part 5, then paste the URL into <code>assets/js/config.js</code>."; $("run").disabled = true; $("demo").disabled = true; }
+  if (!cfg.EEG_URL) { svc.className = "callout warn"; svc.innerHTML = "⚙️ <b>Backend not connected yet.</b> This page is under development."; $("run").disabled = true; $("demo").disabled = true; }
   else { svc.textContent = "Checking backend…"; fetch(cfg.STATUS_URL).then((r) => r.json()).then(() => { svc.className = "callout"; svc.textContent = "✅ Backend online."; }).catch(() => { svc.className = "callout bad"; svc.textContent = "Backend unreachable — check the URLs in config.js and ALLOWED_ORIGINS in functions/.env."; }); }
 
   Access.mount($("access"));
