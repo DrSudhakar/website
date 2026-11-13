@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /website/admin.html
+
+Sitemap: https://drsudhakar.github.io/website/sitemap.xml
