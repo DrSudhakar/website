@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LLM Empathy Checker · Sudhakar Mishra</title>
+  <title>LLM Empathy Checker (Under Development) · Sudhakar Mishra</title>
   <meta name="description" content="Compare the empathy of open-source and paid LLMs on standardised emotional scenarios.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%238a2a2b'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='Georgia'%3ESM%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
 <body>
 <main id="main" class="wrap">
   <p><a href="../glance.html">← Work at a glance</a></p>
-  <h1 class="page-title">LLM empathy checker</h1>
+  <h1 class="page-title">LLM empathy checker (under development)</h1>
   <p class="lede">Type the name of any open-source model from Hugging Face — or add a paid model with your own API key — pick several, and compare how empathetically they respond to the same emotional messages.</p>
   <div id="svc" class="callout"></div>
   <div id="access" class="callout"></div>
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // service status
   const svc = $("svc");
-  if (!cfg.EMPATHY_URL) { svc.className = "callout warn"; svc.innerHTML = "⚙️ <b>Backend not connected yet.</b> This page needs the Firebase function deployed — see <code>GUIDE.md</code> → Part 5, then paste the URL into <code>assets/js/config.js</code>. You can still browse and select models."; $("run").disabled = true; }
+  if (!cfg.EMPATHY_URL) { svc.className = "callout warn"; svc.innerHTML = "⚙️ <b>Backend not connected yet.</b> This page is under development. You can still browse and select models."; $("run").disabled = true; }
   else { svc.className = "callout"; svc.textContent = "Checking backend…"; fetch(cfg.STATUS_URL).then((r) => r.json()).then(() => { svc.textContent = "✅ Backend online."; }).catch(() => { svc.className = "callout bad"; svc.textContent = "Backend unreachable — check the URL in config.js and the CORS origin in functions/.env."; }); }
 
   Access.mount($("access"));
